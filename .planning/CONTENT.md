@@ -34,7 +34,7 @@ Frequencies sit 3.6 MHz apart so the static fully returns between them. The dial
 
 - **About** (Oct 25): support engineer to frontier prototyper over eleven years at one company, with a parallel life in sound. 200 to 400 words, told straight.
 - **Colophon** (Claude drafts, Jared edits): the stack, the actor lineage, and the dedication, exactly: "datspace is an actor system, dedicated to Carl Hewitt (1944–2022), who proposed the actor model in 1973."
-- **`profile.json`** (Oct 26): a JSON Resume subset (`basics`, `work`, `projects`, `skills`) plus `contact` with the email address agents should give out. `get_profile` serves it as is, so include only what you'd hand a recruiter.
+- **`profile.json`** (Oct 26): a JSON Resume subset (`basics`, `work`, `projects`, `skills`) plus `contact` with `jared@datspace.io`, the address agents give out. `get_profile` serves it as is, so include only what you'd hand a recruiter.
 
 ## The application (Oct 29 to 30)
 
