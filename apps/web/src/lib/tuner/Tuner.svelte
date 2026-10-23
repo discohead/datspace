@@ -6,6 +6,7 @@
   import { onMount } from "svelte";
   import { prefersReducedMotion } from "svelte/motion";
   import { goto } from "$app/navigation";
+  import BandSelector from "../site/BandSelector.svelte";
   import Field from "./Field.svelte";
   import { glyphBits, stationHue } from "./glyph.ts";
   import {
@@ -23,6 +24,8 @@
     tune,
     valueText,
   } from "./model.ts";
+  import type { Sound } from "./sound.ts";
+  import { readTape, recordLock } from "./tape.ts";
 
   interface Props {
     stations: DialStation[];
@@ -42,7 +45,11 @@
   let touched = $state(false);
   let webgl = $state<"unknown" | "yes">("unknown");
   let panelHeight = $state(0);
+  let headerHeight = $state(0);
   let now = $state<number | null>(null);
+  let tapeLength = $state(0);
+  let soundOn = $state(false);
+  let sound: Sound | null = null;
 
   const nearest = $derived(nearestLive(stations, frequency));
   const sigma = $derived(nearest ? sigmaAt(nearest.distance) : 1);
@@ -53,6 +60,7 @@
   );
   const ink = $derived(locked ? stationHue(locked.glyphSeed) : WHITE);
   const bar = $derived(now === null ? null : barAt(now, clock.bpm, clock.beatsPerBar));
+  const fragment = $derived(formatFragment(frequency));
   const position = (f: number) => ((f - DIAL_MIN) / (DIAL_MAX - DIAL_MIN)) * 100;
 
   const ticks = Array.from({ length: Math.round((DIAL_MAX - DIAL_MIN) / 0.5) + 1 }, (_, i) => DIAL_MIN + i * 0.5);
@@ -108,6 +116,8 @@
 
   function onpointerdown(event: PointerEvent) {
     if (event.button !== 0) return;
+    // Drag only from the field itself; capturing the pointer elsewhere would swallow clicks on links and buttons.
+    if (!(event.target as Element).closest(".field")) return;
     (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
     dragX = event.clientX;
     dragAccum = frequency;
@@ -176,6 +186,11 @@
       if (next !== null && next !== frequency) frequency = next;
     };
     window.addEventListener("hashchange", onhash);
+    tapeLength = readTape().length;
+
+    // Silence sound while the tab is hidden.
+    const onvisibility = () => sound?.setAudible(document.visibilityState === "visible");
+    document.addEventListener("visibilitychange", onvisibility);
 
     // The clock does the arithmetic locally; it only needs to wake once per bar.
     now = Date.now();
@@ -183,9 +198,40 @@
 
     return () => {
       window.removeEventListener("hashchange", onhash);
+      document.removeEventListener("visibilitychange", onvisibility);
       clearInterval(timer);
+      sound?.stop();
     };
   });
+
+  // Every new lock goes on the tape.
+  $effect(() => {
+    if (!locked) return;
+    tapeLength = recordLock({
+      slug: locked.slug,
+      title: locked.title,
+      frequency: locked.frequency,
+      at: Date.now(),
+    }).length;
+  });
+
+  $effect(() => {
+    sound?.update(frequency, sigma, nearest?.index ?? null);
+  });
+
+  async function toggleSound() {
+    if (soundOn) {
+      sound?.stop();
+      sound = null;
+      soundOn = false;
+      return;
+    }
+    soundOn = true;
+    const started = await (await import("./sound.ts")).startSound();
+    if (!soundOn) return started.stop();
+    sound = started;
+    sound.update(frequency, sigma, nearest?.index ?? null);
+  }
 
   // Carry the dial position in the fragment, without adding history entries.
   $effect(() => {
@@ -222,6 +268,7 @@
           glyphSize={GLYPH_SIZE}
           {ink}
           panel={panelHeight}
+          header={headerHeight + 16}
           animate={!prefersReducedMotion.current}
           stillFrame={Math.round(frequency * 10)}
         />
@@ -229,15 +276,16 @@
     {/if}
   </div>
 
-  <header class="top">
-    <a class="plate wordmark" href="/">datspace</a>
-    <nav class="plate">
-      {#if bar !== null}
-        <span class="readout" title="Bars since January 1, 1973, at {clock.bpm} BPM">
-          bar {bar.toLocaleString("en-US")}
-        </span>
-      {/if}
+  <header class="top" bind:clientHeight={headerHeight}>
+    <div class="plate left">
+      <a class="wordmark" href="/">datspace</a>
+      <BandSelector fragment={touched ? fragment : ""} />
+    </div>
+    <nav class="plate" aria-label="Site">
+      <button type="button" class="sound" aria-pressed={soundOn} onclick={toggleSound}>Sound</button>
       <a href="/index/">Index</a>
+      <a href="/about">About</a>
+      <a href="/tape">Tape{#if tapeLength > 0}&nbsp;<span class="readout count">{tapeLength}</span>{/if}</a>
     </nav>
   </header>
 
@@ -249,6 +297,11 @@
       <dl class="meters readout">
         <div><dt>σ</dt><dd>{sigma.toFixed(2)}</dd></div>
         <div><dt>SNR</dt><dd>{snr >= 0 ? "+" : "−"}{Math.abs(snr).toFixed(1)} dB</dd></div>
+        {#if bar !== null}
+          <div title="Bars since January 1, 1973, at {clock.bpm} BPM">
+            <dt>bar</dt><dd>{bar.toLocaleString("en-US")}</dd>
+          </div>
+        {/if}
       </dl>
     </div>
 
@@ -338,10 +391,58 @@
     letter-spacing: -0.01em;
   }
 
+  .left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
   nav {
     display: flex;
     gap: 1.25rem;
-    align-items: baseline;
+    align-items: center;
+  }
+
+  .sound {
+    padding: 0.1rem 0.5rem;
+    border: 1px solid var(--ink);
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .sound[aria-pressed="true"] {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .count {
+    font-size: 0.85em;
+  }
+
+  @media (max-width: 40rem) {
+    .top {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .left {
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+    }
+
+    nav {
+      gap: 0.9rem;
+    }
+
+    .panel .meters {
+      font-size: 0.8rem;
+    }
+
+    .panel .meters div {
+      grid-template-columns: 2.75em auto;
+    }
   }
 
   .panel {
@@ -382,6 +483,7 @@
   .meters div {
     display: grid;
     grid-template-columns: 3.5em auto;
+    white-space: nowrap;
   }
 
   .meters dt,

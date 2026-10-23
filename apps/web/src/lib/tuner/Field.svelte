@@ -21,12 +21,14 @@
     ink: [number, number, number];
     /** CSS pixels at the bottom covered by the receiver panel. */
     panel: number;
+    /** CSS pixels at the top taken by the header. */
+    header: number;
     /** When false (reduced motion), the noise is fixed to `stillFrame`. */
     animate: boolean;
     stillFrame: number;
   }
 
-  let { sigma, glyph, glyphSize, ink, panel, animate, stillFrame }: Props = $props();
+  let { sigma, glyph, glyphSize, ink, panel, header, animate, stillFrame }: Props = $props();
 
   const { size, dpr, invalidate } = useThrelte();
 
@@ -76,12 +78,14 @@
     const width = size.current.width * ratio;
     const height = size.current.height * ratio;
     const panelPx = panel * ratio;
+    const headerPx = header * ratio;
     const cell = Math.max(1, Math.round(CELL_CSS_PX * ratio));
-    // The glyph sits centered in the space above the panel, snapped to whole cells.
-    const room = Math.min(width, height - panelPx);
+    // The glyph sits centered between the header and the panel, snapped to whole cells.
+    const free = height - panelPx - headerPx;
+    const room = Math.min(width, free);
     const side = Math.max(cell * glyphSize, Math.floor((room * 0.8) / (cell * glyphSize)) * cell * glyphSize);
     const x = Math.round((width - side) / 2 / cell) * cell;
-    const y = Math.round((panelPx + (height - panelPx - side) / 2) / cell) * cell;
+    const y = Math.round((panelPx + (free - side) / 2) / cell) * cell;
     u.uCell!.value = cell;
     (u.uGlyphRect!.value as Vector4).set(x, y, side, side);
     invalidate();
