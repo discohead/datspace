@@ -1,0 +1,2 @@
+# "/index" would otherwise resolve to the root index.html; the index page lives at /index/.
+/index /index/ 308

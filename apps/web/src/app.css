@@ -1,0 +1,46 @@
+/* 1-bit chrome: true black and white, one grotesk with its mono sibling. */
+:root {
+  --ink: #fff;
+  --paper: #000;
+  --sans: "Geist Variable", system-ui, sans-serif;
+  --mono: "Geist Mono Variable", ui-monospace, monospace;
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 18px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-underline-offset: 0.2em;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.readout {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.page {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 4rem 1.5rem;
+}
