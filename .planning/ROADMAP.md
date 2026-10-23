@@ -8,7 +8,7 @@ Ship datspace.io, datspace.ai, and the `datspace` CLI by **October 30, 2026**, t
 
 - [x] Add all six domains as zones on Cloudflare (done October 22; pending until the nameservers change).
 - [ ] Switch all six domains' nameservers at Namecheap to `lochlan.ns.cloudflare.com` and `nancy.ns.cloudflare.com`. Propagation can take a day.
-- [ ] Claim `datspace` on npm (still unclaimed on October 22). Publishing a `0.0.0` placeholder holds the name.
+- [x] Claim `datspace` on npm (placeholder `0.0.0` published October 22, owner `jaredmixpanel`).
 - [x] Create the public repo `discohead/datspace` and push `main` (done October 22).
 - [ ] Run `pnpm dlx wrangler login`, and note the account's workers.dev subdomain.
 - [ ] Add GitHub secrets: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`. Add `DEPLOY_TOKEN` and `NPM_TOKEN` before phases 04 and 05.
