@@ -14,7 +14,7 @@
       <li class:unlit={station.status === "unlit"}>
         <span class="readout">{station.frequency.toFixed(1)}</span>
         <span>
-          <strong>{station.title}</strong>
+          <a href="/s/{station.slug}"><strong>{station.title}</strong></a>
           <span class="summary">{station.summary}</span>
         </span>
         <span class="readout domain">{station.domain}</span>
