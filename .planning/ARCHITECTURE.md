@@ -4,7 +4,7 @@ Checked against Cloudflare docs and npm on October 21, 2026. Where a section say
 
 ## At launch (October 30)
 
-Two Workers and one actor class. Nothing calls a model. This section overrides the rest of the document where they differ; everything else describes the target the week after launch.
+Two Workers and two actor classes. Nothing calls a model. This section overrides the rest of the document where they differ; everything else describes the target the week after launch.
 
 ```
 Browsers ── datspace-web (datspace.io): prerendered from packages/content
@@ -15,10 +15,10 @@ datspace-ai ── service binding (human pages) ──► datspace-web
 ```
 
 - **Content is bundled.** `pnpm --filter @datspace/content build` validates `stations/*.md`, `profile.json`, and `clock.json` and writes `packages/content/.generated/content.json` (docs, content hashes, and a glyph seed per station, the SHA-256 of its slug). `datspace-web` prerenders from it and `datspace-ai` imports it. Workers never read the filesystem.
-- **One actor.** `Ledger` is defined in `apps/ai/src/ledger.ts` and exported from the `datspace-ai` Worker, with the schema, hash chain, and methods in the Ledger section below. It owns the only live state at launch: `deploy` and `agent.call` events. No `publish` or `message.received` events yet.
+- **Two actors.** `Ledger` (`apps/ai/src/ledger.ts`) owns the hash-chained event log: `deploy`, `agent.call`, and `message.received`. `Inbox` (`apps/ai/src/inbox.ts`) owns messages to Jared and the sending limits: 3 per sender (a salted, daily-rotating hash of the address) per 24 hours, and 30 a day overall. Both are exported from the `datspace-ai` Worker. No `publish` events until the Work actors arrive.
 - **A `Source` interface instead of `Actors`.** `packages/contract` defines `Source { stations(), work(slug), search(q, limit), graph(), profile(), ledger(limit) }`, and the tools' `run(source, input)` call only that. At launch `createStaticSource(content, ledger)` answers from the bundle, with search as a simple in-memory match that returns snippets. The week after, an actor-backed `Source` replaces it with no change to any surface.
-- **Six tools.** The seven in the contract section minus `transmit`.
-- **Routes on datspace-ai:** `/mcp`, `/api/*` (minus `transmit` and `ledger/watch`), `/llms.txt`, and `POST /admin/deploy` (bearer `DEPLOY_TOKEN`, constant-time comparison, body `{ commit }`, appends one `deploy` event). Everything else goes to `WEB`.
+- **Seven tools.** All seven in the contract section. `transmit` emails Jared through a `send_email` binding restricted to `transmit@datspace.io`; the destination is the `INBOX_TO` secret, a verified Email Routing address, so sending is free and the address stays out of the repo.
+- **Routes on datspace-ai:** `/mcp`, `/api/*` (minus `ledger/watch`), `/llms.txt`, `/live.json`, `GET /admin/messages`, `GET /admin/version`, and `POST /admin/deploy` (bearer `DEPLOY_TOKEN`, constant-time comparison, body `{ commit }`, appends one `deploy` event). Everything else goes to `WEB`.
 - **`datspace-web` binds nothing.** The `/ai` live view polls `/api/ledger` on its own origin every few seconds. The tape's contact line is a `mailto:` link.
 - **Deploy order:** web, then ai (ai's service binding needs web to exist), then `POST /admin/deploy`.
 

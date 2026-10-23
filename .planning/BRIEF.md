@@ -30,12 +30,12 @@ A reviewer with two minutes. In the first ten seconds they see static resolve in
 
 ## Launch scope
 
-Two Workers and one actor. Content is bundled at build. The Ledger is the only Durable Object at launch, because it is the only thing that owns live state: the hash-chained log of agent calls behind the live view. Network, Work, and Inbox become actors after launch, when publishing becomes a message and visitors can transmit; until then they are files, per the actor rule in CLAUDE.md.
+Two Workers and two actors. Content is bundled at build. The Ledger owns the hash-chained log of agent calls behind the live view; the Inbox owns messages that agents and people transmit to Jared. Network and Work become actors after launch, when publishing becomes a message; until then they are files, per the actor rule in CLAUDE.md.
 
 ## Out of Scope
 
 - datspace.dev, datspace.fm, datspace.music, and datspace.studio content. These domains redirect to datspace.io until their phase.
-- Network, Work, and Inbox actors; publish as a message; `transmit` and the contact form; Cap'n Web RPC. All are the week after launch.
+- Network and Work actors; publish as a message; a web contact form with Turnstile (the tape uses `mailto:`); Cap'n Web RPC. All are the week after launch.
 - Live presence on stations, the generative radio station, and media on R2.
 - Video tools (HyperFrames), effect libraries (Canvas UI, Svelte Bits), and Tailwind.
 - LLM calls, embeddings, and vector search.

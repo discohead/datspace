@@ -86,7 +86,7 @@ Never cut: the tuner, the index, station pages, MCP, `npx datspace ls`, and the 
 ## Week after launch
 
 - Network and Work actors: publishing becomes a message from CI, revisions live in each Work actor, and actor ids seed the glyphs
-- Inbox and `transmit`, on MCP, JSON, the CLI, and a contact form with Turnstile
+- A web contact form with Turnstile over `transmit` (Inbox and `transmit` shipped October 22 on MCP, JSON, and the CLI)
 - Cap'n Web RPC, the WebSocket live feed, `datspace watch` and `datspace tune`
 
 ## After that

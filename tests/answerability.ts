@@ -5,7 +5,7 @@
  *   AI_URL=https://datspace.ai pnpm check:answers
  */
 import { readFile } from "node:fs/promises";
-import { API_VERSION, toolPath, type ToolName } from "@datspace/contract";
+import { API_VERSION, toolRequest, type ToolName } from "@datspace/contract";
 import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
 import { parse } from "yaml";
 import { z } from "zod";
@@ -28,7 +28,12 @@ interface Outcome {
 }
 
 async function viaJson(c: Case): Promise<Outcome> {
-  const res = await fetch(base + toolPath(c.tool as ToolName, c.input));
+  const { method, path, body: requestBody } = toolRequest(c.tool as ToolName, c.input);
+  const res = await fetch(base + path, {
+    method,
+    body: requestBody,
+    headers: requestBody ? { "content-type": "application/json" } : {},
+  });
   const body = (await res.json()) as { apiVersion?: string; error?: { code: string } };
   if (body.apiVersion !== API_VERSION) throw new Error(`apiVersion ${body.apiVersion}, expected ${API_VERSION}`);
   return { text: JSON.stringify(body), errorCode: body.error?.code };

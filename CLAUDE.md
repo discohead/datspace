@@ -13,14 +13,14 @@ Read these before any work:
 
 ```
 apps/web            SvelteKit 3 site → Worker "datspace-web" (datspace.io, unlit domains, human pages on datspace.ai)
-apps/ai             Worker "datspace-ai": MCP, JSON API, llms.txt, admin deploy, and the Ledger actor
+apps/ai             Worker "datspace-ai": MCP, JSON API, llms.txt, admin routes, and the Ledger and Inbox actors
 apps/cli            TypeScript CLI, published to npm as "datspace" (esbuild bundle, no runtime dependencies)
 packages/contract   Types, zod schemas, tool definitions, Source, API_VERSION (the single source of truth)
 packages/content    Station markdown, schema, loader, content hashes, build to .generated/content.json
 packages/clock      Pure clock math: bars since 1973
 tests/              answerability.yaml and its runner
 
-After launch: workers/actors (Network, Work, Ledger, Inbox), scripts/publish.ts, and Cap'n Web RPC.
+After launch: workers/actors (Network, Work, and the Ledger and Inbox moved there), scripts/publish.ts, and Cap'n Web RPC.
 ```
 
 ## Commands

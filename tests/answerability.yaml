@@ -41,3 +41,9 @@
   tool: get_work
   input: { slug: no-such-work }
   mustError: not_found
+
+# Proves transmit exists on both surfaces without sending mail: the address is invalid.
+- question: Can an agent send Jared a message, and what does it need?
+  tool: transmit
+  input: { reply_to: not-an-email, body: Hello }
+  mustError: invalid_input
