@@ -1,0 +1,23 @@
+{
+  "basics": {
+    "name": "Jared McFarland",
+    "label": "Prototype researcher",
+    "summary": "Support engineer to frontier prototyper over eleven years at one company, with a parallel life in sound.",
+    "url": "https://datspace.io",
+    "profiles": [
+      { "network": "GitHub", "username": "discohead", "url": "https://github.com/discohead" }
+    ]
+  },
+  "work": [],
+  "projects": [
+    {
+      "name": "datspace",
+      "description": "A portfolio network: a tuner for people at datspace.io and an actor network for agents at datspace.ai.",
+      "url": "https://github.com/discohead/datspace"
+    }
+  ],
+  "skills": [],
+  "contact": {
+    "email": "jared@datspace.io"
+  }
+}
