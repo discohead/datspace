@@ -99,3 +99,14 @@ describe("tools", () => {
     expect(result).toMatchObject({ ok: true, data: { events: [{ seq: 1, type: "deploy" }] } });
   });
 });
+
+describe("toolPath", async () => {
+  const { toolPath } = await import("../src/index.ts");
+  it("maps every tool to its JSON route", () => {
+    expect(toolPath("list_stations")).toBe("/api/stations");
+    expect(toolPath("get_work", { slug: "datspace" })).toBe("/api/work/datspace");
+    expect(toolPath("search", { query: "Cloudflare Workers", limit: 5 })).toBe("/api/search?q=Cloudflare+Workers&limit=5");
+    expect(toolPath("search", { query: "x" })).toBe("/api/search?q=x");
+    expect(toolPath("get_ledger")).toBe("/api/ledger");
+  });
+});

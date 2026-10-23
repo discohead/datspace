@@ -1,6 +1,6 @@
 import type { z } from "zod";
 
-export type ErrorCode = "invalid_input" | "not_found" | "internal";
+export type ErrorCode = "invalid_input" | "not_found" | "rate_limited" | "internal";
 
 /** Every surface returns errors in this shape. `fix` says how to correct the call. */
 export interface ErrorBody {

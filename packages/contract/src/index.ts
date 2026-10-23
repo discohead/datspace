@@ -6,3 +6,5 @@ export * from "./errors.ts";
 export * from "./hash.ts";
 export * from "./source.ts";
 export * from "./tools.ts";
+export * from "./markdown.ts";
+export * from "./paths.ts";

@@ -17,7 +17,10 @@ export interface Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.Z
   run(source: Source, input: z.output<I>): Promise<z.output<O>>;
 }
 
-function defineTool<I extends z.ZodType, O extends z.ZodType>(tool: Tool<I, O>): Tool<I, O> {
+/** Keeps each tool's name as a literal type, so `ToolName` is the exact union. */
+function defineTool<const N extends string, I extends z.ZodType, O extends z.ZodType>(
+  tool: Tool<I, O> & { name: N },
+): Tool<I, O> & { name: N } {
   return tool;
 }
 
