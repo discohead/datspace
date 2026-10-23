@@ -39,8 +39,9 @@ export function denoise(state: DenoiseState, glyph: Uint8Array, n: number, anima
   return (p: p5) => {
     let buffer: ReturnType<typeof frame>;
     p.setup = () => {
-      p.pixelDensity(1);
       p.createCanvas(size, size);
+      // After createCanvas: p5 2 resets density there, and the frame is written 1:1.
+      p.pixelDensity(1);
       p.frameRate(24);
       buffer = frame(p, size, size);
       if (!animate) p.noLoop();
@@ -71,8 +72,9 @@ export function grow(state: { steps: Uint8Array[] }, n: number) {
   return (p: p5) => {
     let buffer: ReturnType<typeof frame>;
     p.setup = () => {
-      p.pixelDensity(1);
       p.createCanvas(w, h);
+      // After createCanvas: p5 2 resets density there, and the frame is written 1:1.
+      p.pixelDensity(1);
       buffer = frame(p, w, h);
       p.noLoop();
     };
@@ -101,8 +103,9 @@ export function threshold(state: ThresholdState, animate: boolean) {
   return (p: p5) => {
     let buffer: ReturnType<typeof frame>;
     p.setup = () => {
-      p.pixelDensity(1);
       p.createCanvas(w, h);
+      // After createCanvas: p5 2 resets density there, and the frame is written 1:1.
+      p.pixelDensity(1);
       p.frameRate(24);
       buffer = frame(p, w, h);
       if (!animate) p.noLoop();

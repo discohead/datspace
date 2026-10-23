@@ -30,6 +30,10 @@ Glyphs, lock colors, fonts, and the mobile layout render identically across engi
 - The shader is cheap; frames hold 60 fps even at 6× CPU.
 - **Fixed**: on slow 4G the field was black for about two seconds while three.js loaded. A 2 KB 1-bit noise image now paints first (loaded at 645 ms on slow 4G), and the live field replaces it.
 
+## Found after the pass
+
+- **The studies drew into a quarter of their frames on Retina displays** (reported by Jared). p5 2 resets pixel density inside `createCanvas`, so `pixelDensity(1)` called before it was ignored; at 2× the canvas backing was twice the size of the 1:1 frame. Every automated check ran at 1×. Fixed by calling it after `createCanvas`; `pnpm check:render` now checks 1×, 2×, and 3× after every deploy.
+
 ## Fixed in this pass
 
 - Static on first paint (above).

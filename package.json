@@ -12,7 +12,8 @@
     "test": "pnpm -r test",
     "verify:ledger": "node --disable-warning=ExperimentalWarning scripts/verify-ledger.ts",
     "check:a11y": "node --disable-warning=ExperimentalWarning scripts/check-a11y.ts",
-    "check:answers": "node --disable-warning=ExperimentalWarning tests/answerability.ts"
+    "check:answers": "node --disable-warning=ExperimentalWarning tests/answerability.ts",
+    "check:render": "node --disable-warning=ExperimentalWarning scripts/check-render.ts"
   },
   "devDependencies": {
     "@datspace/contract": "workspace:*",

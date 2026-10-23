@@ -69,6 +69,12 @@ jobs:
           WEB_URL: ${{ vars.WEB_URL }}
         run: pnpm check:a11y
 
+      # Display-dependent rendering: the studies must stay 1:1 at every pixel ratio.
+      - name: Check rendering
+        env:
+          WEB_URL: ${{ vars.WEB_URL }}
+        run: pnpm check:render
+
       # Recruiter questions over MCP and JSON, against the live API. No model.
       - name: Check answerability
         env:
