@@ -5,6 +5,10 @@ import { HEWITT, formatHits, formatStations, formatWork, plain, type Style } fro
 
 export interface IO {
   fetch: typeof fetch;
+  /** Everything piped to stdin, or null when stdin is a terminal. */
+  readStdin(): Promise<string | null>;
+  /** Asks a question on the terminal; null when there's no terminal to ask on. */
+  prompt(question: string): Promise<string | null>;
   out(text: string): void;
   err(text: string): void;
   env: Record<string, string | undefined>;
@@ -22,11 +26,14 @@ Usage
   datspace search <query>      Full-text search, with snippets
   datspace graph               Works, domains, and the links between them, as JSON
   datspace hewitt              The 1973 actor paper and its three rules
+  datspace transmit            Send Jared a message (asks, or use the flags below)
 
 Options
   --json         Print the API's JSON instead of text
   --api <url>    Use another datspace API (default ${DEFAULT_API})
   --limit <n>    Number of search results, 1 to 20
+  --reply-to <email>, --name <name>, --body <text>
+                 For transmit; the body can also be piped in
   -h, --help     Show this help
   -v, --version  Print the version
 
@@ -43,6 +50,9 @@ export async function run(argv: string[], io: IO, version: string): Promise<numb
         json: { type: "boolean", default: false },
         api: { type: "string", default: io.env.DATSPACE_API ?? DEFAULT_API },
         limit: { type: "string" },
+        "reply-to": { type: "string" },
+        name: { type: "string" },
+        body: { type: "string" },
         help: { type: "boolean", short: "h", default: false },
         version: { type: "boolean", short: "v", default: false },
       },
@@ -104,6 +114,19 @@ export async function run(argv: string[], io: IO, version: string): Promise<numb
         const body = await callTool(client, "get_graph");
         const { nodes, edges } = body as unknown as Graph;
         io.out(JSON.stringify(values.json ? body : { nodes, edges }, null, 2));
+        return 0;
+      }
+      case "transmit": {
+        const replyTo = values["reply-to"] ?? (await io.prompt("Your email, for Jared's reply: "));
+        const body = values.body ?? (await io.readStdin()) ?? (await io.prompt("Message: "));
+        if (!replyTo || !body?.trim()) {
+          io.err('datspace transmit needs --reply-to and --body, like:\n  datspace transmit --reply-to you@example.com --body "Hello"');
+          return 2;
+        }
+        const message: Record<string, unknown> = { reply_to: replyTo.trim(), body: body.trim() };
+        if (values.name) message.name = values.name;
+        const sent = await callTool(client, "transmit", message);
+        print(sent, () => `Sent. Jared will reply to ${replyTo.trim()}. (Message ${sent.id})`);
         return 0;
       }
       case "hewitt":

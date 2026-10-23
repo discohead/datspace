@@ -34,6 +34,8 @@ function io(fetchImpl: typeof fetch, overrides: Partial<IO> = {}) {
   const err: string[] = [];
   const value: IO = {
     fetch: fetchImpl,
+    readStdin: async () => null,
+    prompt: async () => null,
     out: (t) => out.push(t),
     err: (t) => err.push(t),
     env: {},
@@ -150,5 +152,34 @@ describe("datspace CLI", () => {
     const { io: x } = io(api(routes, seen), { env: { DATSPACE_API: "http://127.0.0.1:8787" } });
     await run(["ls"], x, "0.1.0");
     expect(seen[0]!.url).toBe("http://127.0.0.1:8787/api/stations");
+  });
+
+  it("transmits with flags, as a JSON POST", async () => {
+    const seen: Request[] = [];
+    const { io: x, out } = io(api({ "/api/transmit": { apiVersion: "2026-10-30", id: "m1", at: "2026-10-23T00:00:00.000Z" } }, seen));
+    expect(await run(["transmit", "--reply-to", "ada@example.com", "--name", "Ada", "--body", " Hello. "], x, "0.2.0")).toBe(0);
+    expect(seen[0]!.method).toBe("POST");
+    expect(seen[0]!.headers.get("content-type")).toBe("application/json");
+    expect(await seen[0]!.json()).toEqual({ reply_to: "ada@example.com", body: "Hello.", name: "Ada" });
+    expect(out[0]).toBe("Sent. Jared will reply to ada@example.com. (Message m1)");
+  });
+
+  it("reads the body from stdin, or asks for what's missing", async () => {
+    const seen: Request[] = [];
+    const routes = { "/api/transmit": { apiVersion: "2026-10-30", id: "m2", at: "2026-10-23T00:00:00.000Z" } };
+    const piped = io(api(routes, seen), { readStdin: async () => "Piped hello\n" });
+    expect(await run(["transmit", "--reply-to", "b@example.com"], piped.io, "0.2.0")).toBe(0);
+    expect(await seen[0]!.json()).toEqual({ reply_to: "b@example.com", body: "Piped hello" });
+
+    const answers = ["c@example.com", "Typed hello"];
+    const asked = io(api(routes, seen), { prompt: async () => answers.shift() ?? null });
+    expect(await run(["transmit"], asked.io, "0.2.0")).toBe(0);
+    expect(await seen[1]!.json()).toEqual({ reply_to: "c@example.com", body: "Typed hello" });
+  });
+
+  it("explains a transmit with nothing to send", async () => {
+    const { io: x, err } = io(api({}));
+    expect(await run(["transmit"], x, "0.2.0")).toBe(2);
+    expect(err[0]).toContain("--reply-to");
   });
 });

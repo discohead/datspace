@@ -1,4 +1,4 @@
-import { toolPath } from "@datspace/contract/paths";
+import { toolRequest } from "@datspace/contract/paths";
 import type { ToolName } from "@datspace/contract";
 
 export interface ClientOptions {
@@ -26,12 +26,16 @@ export async function callTool(
   tool: ToolName,
   input: Record<string, unknown> = {},
 ): Promise<Record<string, unknown>> {
-  const url = options.api.replace(/\/$/, "") + toolPath(tool, input);
+  const { method, path, body: requestBody } = toolRequest(tool, input);
+  const url = options.api.replace(/\/$/, "") + path;
+  const headers: Record<string, string> = {
+    accept: "application/json",
+    "x-datspace-client": `cli/${options.version}`,
+  };
+  if (requestBody !== undefined) headers["content-type"] = "application/json";
   let res: Response;
   try {
-    res = await options.fetch(url, {
-      headers: { accept: "application/json", "x-datspace-client": `cli/${options.version}` },
-    });
+    res = await options.fetch(url, { method, headers, body: requestBody });
   } catch {
     throw new Error(`Couldn't reach ${options.api}. Check the connection, or pass --api <url>.`);
   }
