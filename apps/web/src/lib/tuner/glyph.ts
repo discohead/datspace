@@ -32,24 +32,32 @@ const MAX_DENSITY = 0.6;
  * from the same seed.
  */
 export function glyphBits(seedHex: string, n = 24): Uint8Array {
+  return glyphSteps(seedHex, n).at(-1)!;
+}
+
+/**
+ * The stages of the accepted glyph: the mirrored random field, then each
+ * smoothing pass. The last stage is the glyph. The 1-bit studies draw these.
+ */
+export function glyphSteps(seedHex: string, n = 24): Uint8Array[] {
   if (!/^[0-9a-f]{32,}$/i.test(seedHex)) throw new RangeError("glyph seed must be at least 32 hex digits");
   const random = prng(seedHex);
   // Skip the first outputs; sfc32 needs a few rounds to mix a raw seed.
   for (let i = 0; i < 12; i++) random();
 
   let fill = 0.42 + random() * 0.12;
-  let bits = grow(random, n, fill);
+  let steps = grow(random, n, fill);
   for (let attempt = 0; attempt < 16; attempt++) {
-    const d = density(bits);
+    const d = density(steps.at(-1)!);
     if (d >= MIN_DENSITY && d <= MAX_DENSITY) break;
     fill += d < MIN_DENSITY ? 0.03 : -0.03;
-    bits = grow(random, n, fill);
+    steps = grow(random, n, fill);
   }
-  return bits;
+  return steps;
 }
 
-function grow(random: () => number, n: number, fill: number): Uint8Array {
-  let bits: Uint8Array = new Uint8Array(n * n);
+function grow(random: () => number, n: number, fill: number): Uint8Array[] {
+  const bits: Uint8Array = new Uint8Array(n * n);
   const half = Math.ceil(n / 2);
   for (let y = 0; y < n; y++) {
     for (let x = 0; x < half; x++) {
@@ -58,8 +66,9 @@ function grow(random: () => number, n: number, fill: number): Uint8Array {
       bits[y * n + (n - 1 - x)] = lit;
     }
   }
-  for (let pass = 0; pass < 2; pass++) bits = smooth(bits, n);
-  return bits;
+  const steps = [bits];
+  for (let pass = 0; pass < 2; pass++) steps.push(smooth(steps.at(-1)!, n));
+  return steps;
 }
 
 function density(bits: Uint8Array): number {
