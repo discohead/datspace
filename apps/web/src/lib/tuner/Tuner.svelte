@@ -167,6 +167,16 @@
     return () => node.removeEventListener("wheel", handler);
   }
 
+  function onHashChange() {
+    const next = parseFragment(location.hash);
+    if (next !== null && next !== frequency) frequency = next;
+  }
+
+  // Silence sound while the tab is hidden.
+  function onVisibilityChange() {
+    sound?.setAudible(document.visibilityState === "visible");
+  }
+
   onMount(() => {
     const probe = document.createElement("canvas").getContext("webgl2");
     if (!probe) {
@@ -181,24 +191,13 @@
       frequency = fromHash;
       touched = true;
     }
-    const onhash = () => {
-      const next = parseFragment(location.hash);
-      if (next !== null && next !== frequency) frequency = next;
-    };
-    window.addEventListener("hashchange", onhash);
     tapeLength = readTape().length;
-
-    // Silence sound while the tab is hidden.
-    const onvisibility = () => sound?.setAudible(document.visibilityState === "visible");
-    document.addEventListener("visibilitychange", onvisibility);
 
     // The clock does the arithmetic locally; it only needs to wake once per bar.
     now = Date.now();
     const timer = setInterval(() => (now = Date.now()), msPerBar(clock.bpm, clock.beatsPerBar) / 4);
 
     return () => {
-      window.removeEventListener("hashchange", onhash);
-      document.removeEventListener("visibilitychange", onvisibility);
       clearInterval(timer);
       sound?.stop();
     };
@@ -244,7 +243,8 @@
   });
 </script>
 
-<svelte:window onkeydown={onWindowKey} />
+<svelte:window onkeydown={onWindowKey} onhashchange={onHashChange} />
+<svelte:document onvisibilitychange={onVisibilityChange} />
 
 <div
   class="tuner"
