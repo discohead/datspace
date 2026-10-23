@@ -24,5 +24,16 @@ export function toolPath(tool: ToolName, input: Record<string, unknown> = {}): s
       return "/api/profile";
     case "get_ledger":
       return `/api/ledger${query({ limit: input.limit, type: input.type })}`;
+    case "transmit":
+      return "/api/transmit";
   }
+}
+
+/** The HTTP request for a tool: GET with query parameters, or POST with a JSON body for tools that write. */
+export function toolRequest(
+  tool: ToolName,
+  input: Record<string, unknown> = {},
+): { method: "GET" | "POST"; path: string; body?: string } {
+  if (tool === "transmit") return { method: "POST", path: toolPath(tool), body: JSON.stringify(input) };
+  return { method: "GET", path: toolPath(tool, input) };
 }

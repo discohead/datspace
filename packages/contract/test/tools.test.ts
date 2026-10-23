@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { callTool, tools } from "../src/index.ts";
-import { source } from "./fixture.ts";
+import { readOnlySource, sent, source } from "./fixture.ts";
 
 describe("tools", () => {
-  it("defines the six launch tools with one-sentence descriptions", () => {
+  it("defines the seven tools with one-sentence descriptions; only transmit writes", () => {
     expect(tools.map((t) => t.name)).toEqual([
       "list_stations",
       "get_work",
@@ -11,9 +11,12 @@ describe("tools", () => {
       "get_graph",
       "get_profile",
       "get_ledger",
+      "transmit",
     ]);
+    expect(tools.filter((t) => !t.readOnly).map((t) => t.name)).toEqual(["transmit"]);
     for (const tool of tools) {
-      expect(tool.description).toMatch(/^Returns [^.]+(\.[^ ][^.]*)*\.$/);
+      // One sentence: no period followed by a space before the final one.
+      expect(tool.description).toMatch(/^[A-Z][^.]*(\.[^ ][^.]*)*\.$/);
     }
   });
 
@@ -26,6 +29,10 @@ describe("tools", () => {
     ["get_graph", { extra: true }],
     ["get_profile", { extra: true }],
     ["get_ledger", { limit: 101 }],
+    ["transmit", { body: "Hi" }],
+    ["transmit", { reply_to: "not-an-email", body: "Hi" }],
+    ["transmit", { reply_to: "a@example.com", body: "" }],
+    ["transmit", { reply_to: "a@example.com", body: "x".repeat(2001) }],
   ])("%s rejects %j with a fix", async (name, input) => {
     const result = await callTool(name, source, input);
     expect(result.ok).toBe(false);
@@ -94,6 +101,17 @@ describe("tools", () => {
     expect(result).toMatchObject({ ok: true, data: { contact: { email: "jared@datspace.io" } } });
   });
 
+  it("transmit delivers a trimmed message and returns its id", async () => {
+    const result = await callTool("transmit", source, { name: " Ada ", reply_to: "ada@example.com", body: " Hello. " });
+    expect(result).toEqual({ ok: true, data: { id: "m1", at: "2026-10-23T00:00:00.000Z" } });
+    expect(sent.at(-1)).toEqual({ name: "Ada", reply_to: "ada@example.com", body: "Hello." });
+  });
+
+  it("transmit points to email when a source can't deliver", async () => {
+    const result = await callTool("transmit", readOnlySource, { reply_to: "ada@example.com", body: "Hello." });
+    expect(result).toMatchObject({ ok: false, error: { code: "internal", fix: expect.stringContaining("jared@datspace.io") } });
+  });
+
   it("get_ledger returns recent events with a default limit", async () => {
     const result = await callTool("get_ledger", source, undefined);
     expect(result).toMatchObject({ ok: true, data: { events: [{ seq: 1, type: "deploy" }] } });
@@ -101,7 +119,7 @@ describe("tools", () => {
 });
 
 describe("toolPath", async () => {
-  const { toolPath } = await import("../src/index.ts");
+  const { toolPath, toolRequest } = await import("../src/index.ts");
   it("maps every tool to its JSON route", () => {
     expect(toolPath("list_stations")).toBe("/api/stations");
     expect(toolPath("get_work", { slug: "datspace" })).toBe("/api/work/datspace");
@@ -109,5 +127,11 @@ describe("toolPath", async () => {
     expect(toolPath("search", { query: "x" })).toBe("/api/search?q=x");
     expect(toolPath("get_ledger")).toBe("/api/ledger");
     expect(toolPath("get_ledger", { type: "deploy", limit: 3 })).toBe("/api/ledger?limit=3&type=deploy");
+    expect(toolRequest("transmit", { reply_to: "a@example.com", body: "Hi" })).toEqual({
+      method: "POST",
+      path: "/api/transmit",
+      body: '{"reply_to":"a@example.com","body":"Hi"}',
+    });
+    expect(toolRequest("list_stations")).toEqual({ method: "GET", path: "/api/stations" });
   });
 });

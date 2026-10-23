@@ -1,4 +1,4 @@
-import type { BundledStation, ContentBundle, LedgerEvent } from "../src/index.ts";
+import type { BundledStation, ContentBundle, LedgerEvent, MessageInput } from "../src/index.ts";
 import { createStaticSource } from "../src/index.ts";
 
 function station(partial: Partial<BundledStation> & Pick<BundledStation, "slug" | "title" | "frequency">): BundledStation {
@@ -52,8 +52,18 @@ export const events: LedgerEvent[] = [
   { seq: 1, at: "2026-10-23T00:00:00.000Z", type: "deploy", data: { commit: "abc1234" }, prevHash: "0".repeat(64), hash: "c".repeat(64) },
 ];
 
-export const source = createStaticSource(content, {
-  async recent({ limit = 50, type }) {
+export const sent: MessageInput[] = [];
+
+const ledger = {
+  async recent({ limit = 50, type }: { limit?: number; type?: string }) {
     return events.filter((e) => !type || e.type === type).slice(-limit).reverse();
   },
+};
+
+export const source = createStaticSource(content, ledger, async (message) => {
+  sent.push(message);
+  return { id: `m${sent.length}`, at: "2026-10-23T00:00:00.000Z" };
 });
+
+/** A source with no way to deliver messages. */
+export const readOnlySource = createStaticSource(content, ledger);

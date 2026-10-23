@@ -154,6 +154,18 @@ export const ClockConfig = z.strictObject({
 
 export const Surface = z.enum(["mcp", "json", "rpc", "cli"]);
 
+/** A message to Jared. Its contents go to the Inbox and to Jared, never to the Ledger. */
+export const MessageInput = z.strictObject({
+  name: z.string().trim().min(1).max(100).optional(),
+  reply_to: z.email(),
+  body: z.string().trim().min(1).max(2000),
+});
+
+export const Transmitted = z.strictObject({
+  id: z.string(),
+  at: z.iso.datetime(),
+});
+
 /**
  * Ledger events record facts about the network, never arguments, IP addresses,
  * user agents, or message contents.
@@ -228,6 +240,8 @@ export type Profile = z.infer<typeof Profile>;
 export type ClockConfig = z.infer<typeof ClockConfig>;
 export type Surface = z.infer<typeof Surface>;
 export type LedgerInput = z.infer<typeof LedgerInput>;
+export type MessageInput = z.infer<typeof MessageInput>;
+export type Transmitted = z.infer<typeof Transmitted>;
 export type LedgerEvent = z.infer<typeof LedgerEvent>;
 export type LedgerEventType = z.infer<typeof LedgerEventType>;
 export type BundledStation = z.infer<typeof BundledStation>;

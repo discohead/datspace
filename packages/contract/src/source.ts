@@ -1,3 +1,4 @@
+import { ToolError } from "./errors.ts";
 import { Domain as DomainSchema } from "./schemas.ts";
 import type {
   BundledStation,
@@ -5,9 +6,11 @@ import type {
   Graph,
   LedgerEvent,
   LedgerEventType,
+  MessageInput,
   Profile,
   SearchHit,
   Station,
+  Transmitted,
   Work,
 } from "./schemas.ts";
 
@@ -23,7 +26,14 @@ export interface Source {
   graph(): Promise<Graph>;
   profile(): Promise<Profile>;
   ledger(limit: number, type?: LedgerEventType): Promise<LedgerEvent[]>;
+  transmit(message: MessageInput): Promise<Transmitted>;
 }
+
+/**
+ * Delivers a message. The Worker supplies one per request, bound to that
+ * request's surface and sender, so tools never see either.
+ */
+export type Transmitter = (message: MessageInput) => Promise<Transmitted>;
 
 export interface RecentOptions {
   limit?: number;
@@ -37,7 +47,11 @@ export interface LedgerReader {
 
 const SNIPPET_RADIUS = 60;
 
-export function createStaticSource(content: ContentBundle, ledger: LedgerReader): Source {
+export function createStaticSource(
+  content: ContentBundle,
+  ledger: LedgerReader,
+  transmitter?: Transmitter,
+): Source {
   const bySlug = new Map(content.stations.map((s) => [s.slug, s]));
 
   return {
@@ -71,6 +85,13 @@ export function createStaticSource(content: ContentBundle, ledger: LedgerReader)
 
     ledger(limit, type) {
       return ledger.recent({ limit, type });
+    },
+
+    async transmit(message) {
+      if (!transmitter) {
+        throw new ToolError("internal", "This source can't deliver messages.", "Email jared@datspace.io instead.");
+      }
+      return transmitter(message);
     },
   };
 }

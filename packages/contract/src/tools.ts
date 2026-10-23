@@ -14,6 +14,8 @@ export interface Tool<I extends z.ZodType = z.ZodType, O extends z.ZodType = z.Z
   description: string;
   input: I;
   output: O;
+  /** False for tools with effects outside datspace, such as sending email. */
+  readOnly: boolean;
   run(source: Source, input: z.output<I>): Promise<z.output<O>>;
 }
 
@@ -31,6 +33,7 @@ export const listStations = defineTool({
     "Returns every station on the datspace dial with its frequency, domain, status, and one-line summary.",
   input: z.strictObject({}),
   output: z.strictObject({ stations: z.array(s.Station) }),
+  readOnly: true,
   async run(source) {
     return { stations: await source.stations() };
   },
@@ -43,6 +46,7 @@ export const getWork = defineTool({
     "Returns one work's story fields (question, prototype, finding, future), links, and full markdown, by slug.",
   input: z.strictObject({ slug: s.Slug }),
   output: s.Work,
+  readOnly: true,
   async run(source, { slug }) {
     const work = await source.work(slug);
     if (!work) {
@@ -66,6 +70,7 @@ export const search = defineTool({
     limit: z.int().min(1).max(20).default(10),
   }),
   output: z.strictObject({ hits: z.array(s.SearchHit) }),
+  readOnly: true,
   async run(source, { query, limit }) {
     return { hits: await source.search(query, limit) };
   },
@@ -77,6 +82,7 @@ export const getGraph = defineTool({
   description: "Returns the network's works and domains as nodes, and the edges between them.",
   input: z.strictObject({}),
   output: s.Graph,
+  readOnly: true,
   run(source) {
     return source.graph();
   },
@@ -88,6 +94,7 @@ export const getProfile = defineTool({
   description: "Returns Jared McFarland's structured CV and contact details.",
   input: z.strictObject({}),
   output: s.Profile,
+  readOnly: true,
   run(source) {
     return source.profile();
   },
@@ -103,12 +110,26 @@ export const getLedger = defineTool({
     type: s.LedgerEventType.optional(),
   }),
   output: z.strictObject({ events: z.array(s.LedgerEvent) }),
+  readOnly: true,
   async run(source, { limit, type }) {
     return { events: await source.ledger(limit, type) };
   },
 });
 
-export const tools = [listStations, getWork, search, getGraph, getProfile, getLedger] as const;
+export const transmit = defineTool({
+  name: "transmit",
+  title: "Transmit",
+  description:
+    "Delivers a message to Jared McFarland by email and returns its id; it needs a reply-to address, and each sender can send three a day.",
+  input: s.MessageInput,
+  output: s.Transmitted,
+  readOnly: false,
+  run(source, message) {
+    return source.transmit(message);
+  },
+});
+
+export const tools = [listStations, getWork, search, getGraph, getProfile, getLedger, transmit] as const;
 
 export type ToolName = (typeof tools)[number]["name"];
 
