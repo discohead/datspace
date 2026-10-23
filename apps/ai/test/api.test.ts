@@ -60,3 +60,11 @@ describe("datspace-ai", () => {
     expect(await res.text()).toBe("web /colophon");
   });
 });
+
+describe("unlit domains", () => {
+  it.each(["dev", "fm", "music", "studio"])("datspace.%s redirects to datspace.io", async (band) => {
+    const res = await exports.default.fetch(`https://datspace.${band}/anything`, { redirect: "manual" });
+    expect(res.status).toBe(302);
+    expect(res.headers.get("location")).toBe(`https://datspace.io/#${band}`);
+  });
+});

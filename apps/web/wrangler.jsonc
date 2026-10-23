@@ -8,7 +8,7 @@
     "binding": "ASSETS",
     "directory": ".svelte-kit/cloudflare"
   },
-  // Served on workers.dev until phase 06 attaches datspace.io and the unlit domains.
+  "routes": [{ "pattern": "datspace.io", "custom_domain": true }],
   "workers_dev": true,
   "observability": { "enabled": true }
 }

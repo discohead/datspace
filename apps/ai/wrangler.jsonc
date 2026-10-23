@@ -12,7 +12,15 @@
   },
   // Human pages on datspace.ai are served by datspace-web.
   "services": [{ "binding": "WEB", "service": "datspace-web" }],
-  // Served on workers.dev until phase 06 attaches datspace.ai.
+  // datspace.ai, plus the unlit domains, which this Worker redirects to datspace.io.
+  // (On datspace-web, static assets would be served before any redirect code ran.)
+  "routes": [
+    { "pattern": "datspace.ai", "custom_domain": true },
+    { "pattern": "datspace.dev", "custom_domain": true },
+    { "pattern": "datspace.fm", "custom_domain": true },
+    { "pattern": "datspace.music", "custom_domain": true },
+    { "pattern": "datspace.studio", "custom_domain": true }
+  ],
   "workers_dev": true,
   "observability": { "enabled": true }
 }
