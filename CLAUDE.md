@@ -63,7 +63,7 @@ Keep this table in sync with `package.json`.
 
 ## Durable Object code updates
 
-New code reaches a Durable Object eventually, not at deploy time; on October 22 the Ledger served pre-deploy code for at least four minutes after one deploy and about 90 seconds after the next. So:
+New code reaches a Durable Object eventually, not at deploy time; on October 22 the Ledger served pre-deploy code for at least four minutes after one deploy, about 90 seconds after another, and five minutes after a third (measured by the CI wait step). So:
 
 - Keep RPC methods between Workers and actors backward compatible. Add parameters as optional fields on an options object, never by changing positional arguments.
 - CI deploys `datspace-ai` with `--var COMMIT:<sha>` and waits on `GET /admin/version` until both the Worker and the Ledger report it before recording the deploy or running checks.
