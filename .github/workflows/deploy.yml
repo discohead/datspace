@@ -53,3 +53,9 @@ jobs:
         env:
           WEB_URL: ${{ vars.WEB_URL }}
         run: pnpm check:a11y
+
+      # Recruiter questions over MCP and JSON, against the live API. No model.
+      - name: Check answerability
+        env:
+          AI_URL: ${{ vars.AI_URL }}
+        run: pnpm check:answers

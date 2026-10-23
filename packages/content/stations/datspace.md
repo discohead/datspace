@@ -14,3 +14,5 @@ links:
 facets: [io, ai]
 ---
 Draft. The distance from a station is the noise level, so tuning toward a work is scrubbing a denoising schedule by hand.
+
+It runs on Cloudflare Workers and Durable Objects, with the source at [github.com/discohead/datspace](https://github.com/discohead/datspace).

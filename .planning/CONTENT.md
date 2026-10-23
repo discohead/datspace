@@ -19,6 +19,16 @@ In frontmatter, wrap any value that contains `: ` in double quotes, or YAML read
 
 Write facts, not pitch. Agents read the same text through MCP, and the rule there is facts and links only.
 
+## Facts the answerability suite checks
+
+`tests/answerability.yaml` runs after every deploy, so these must survive any rewrite:
+
+- `datspace` mentions **Cloudflare** somewhere in its text, and links **github.com/discohead/datspace**.
+- `agent-native-interface` contains **npx datspace**.
+- `profile.json` has **jared@datspace.io** as the contact email.
+
+Add a case to the YAML whenever a station should answer a new question.
+
 ## Launch stations
 
 Frequencies sit 3.6 MHz apart so the static fully returns between them. The dial opens at 87.5, so the first station a reviewer finds is `datspace`.

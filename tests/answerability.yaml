@@ -1,0 +1,43 @@
+# Questions a recruiter's agent would ask, the tool that answers each, and the
+# facts the answer must contain. The runner calls every case over MCP and over
+# JSON. No model is in the loop.
+
+- question: What is on the dial?
+  tool: list_stations
+  input: {}
+  mustContain: [datspace, agent-native-interface]
+
+- question: What has Jared built on Cloudflare?
+  tool: search
+  input: { query: Cloudflare }
+  mustContain: [datspace]
+
+- question: How do I reach Jared?
+  tool: get_profile
+  input: {}
+  mustContain: [jared@datspace.io]
+
+- question: How do I run the datspace CLI?
+  tool: get_work
+  input: { slug: agent-native-interface }
+  mustContain: [npx datspace]
+
+- question: Where is the source code?
+  tool: get_work
+  input: { slug: datspace }
+  mustContain: [github.com/discohead/datspace]
+
+- question: How do the works connect across domains?
+  tool: get_graph
+  input: {}
+  mustContain: [datspace.io, datspace.ai, lives-on]
+
+- question: Has the network been deployed recently?
+  tool: get_ledger
+  input: { limit: 20 }
+  mustContain: [deploy]
+
+- question: What happens when an agent asks for a work that doesn't exist?
+  tool: get_work
+  input: { slug: no-such-work }
+  mustError: not_found
