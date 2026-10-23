@@ -1,32 +1,73 @@
-import { callTool } from "@datspace/contract";
+import { callTool, workToMarkdown, type ToolName, type Work } from "@datspace/contract";
 import { source } from "./env.ts";
 import { json, jsonError } from "./http.ts";
+import { logCall, surfaceOf } from "./log.ts";
 
-type Route = {
-  tool: string;
-  input: (url: URL) => Record<string, unknown>;
+interface Route {
+  path: RegExp;
+  tool: ToolName;
+  input: (url: URL, match: RegExpExecArray) => Record<string, unknown>;
   cache: string;
-};
+  markdown?: boolean;
+}
 
-// Phase 04 adds work, search, graph, profile, llms.txt, and MCP over the same tools.
-const ROUTES: Record<string, Route> = {
-  "/api/stations": { tool: "list_stations", input: () => ({}), cache: "public, max-age=60" },
-  "/api/ledger": {
-    tool: "get_ledger",
-    input: (url) => (url.searchParams.has("limit") ? { limit: Number(url.searchParams.get("limit")) } : {}),
-    cache: "no-store",
+const limit = (url: URL) =>
+  url.searchParams.has("limit") ? { limit: Number(url.searchParams.get("limit")) } : {};
+
+/** One route per tool; each wraps the contract's definition and nothing else. */
+const ROUTES: Route[] = [
+  { path: /^\/api\/stations$/, tool: "list_stations", input: () => ({}), cache: "public, max-age=60" },
+  {
+    path: /^\/api\/work\/([^/]+)\.md$/,
+    tool: "get_work",
+    input: (_, m) => ({ slug: decodeURIComponent(m[1]!) }),
+    cache: "public, max-age=60",
+    markdown: true,
   },
-};
+  {
+    path: /^\/api\/work\/([^/]+)$/,
+    tool: "get_work",
+    input: (_, m) => ({ slug: decodeURIComponent(m[1]!) }),
+    cache: "public, max-age=60",
+  },
+  {
+    path: /^\/api\/search$/,
+    tool: "search",
+    input: (url) => ({ query: url.searchParams.get("q") ?? "", ...limit(url) }),
+    cache: "public, max-age=60",
+  },
+  { path: /^\/api\/graph$/, tool: "get_graph", input: () => ({}), cache: "public, max-age=60" },
+  { path: /^\/api\/profile$/, tool: "get_profile", input: () => ({}), cache: "public, max-age=60" },
+  { path: /^\/api\/ledger$/, tool: "get_ledger", input: limit, cache: "no-store" },
+];
 
-export async function handleApi(request: Request, env: Env): Promise<Response> {
+export const API_ENDPOINTS = [
+  "/api/stations",
+  "/api/work/<slug>",
+  "/api/work/<slug>.md",
+  "/api/search?q=<query>&limit=<1-20>",
+  "/api/graph",
+  "/api/profile",
+  "/api/ledger?limit=<1-100>",
+];
+
+export async function handleApi(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
   const url = new URL(request.url);
-  const route = ROUTES[url.pathname];
-  if (!route) {
+  let route: Route | undefined;
+  let match: RegExpExecArray | null = null;
+  for (const r of ROUTES) {
+    match = r.path.exec(url.pathname);
+    if (match) {
+      route = r;
+      break;
+    }
+  }
+  if (!route || !match) {
     return jsonError({
       error: {
         code: "not_found",
         message: `No endpoint at ${url.pathname}.`,
-        fix: `Use one of: ${Object.keys(ROUTES).join(", ")}.`,
+        fix: `Use one of: ${API_ENDPOINTS.join(", ")}.`,
       },
     });
   }
@@ -36,7 +77,18 @@ export async function handleApi(request: Request, env: Env): Promise<Response> {
       405,
     );
   }
-  const result = await callTool(route.tool, source(env), route.input(url));
+
+  logCall(env, ctx, surfaceOf(request), route.tool);
+  const result = await callTool(route.tool, source(env), route.input(url, match));
   if (!result.ok) return jsonError(result);
+  if (route.markdown) {
+    return new Response(workToMarkdown(result.data as Work), {
+      headers: {
+        "content-type": "text/markdown; charset=utf-8",
+        "access-control-allow-origin": "*",
+        "cache-control": route.cache,
+      },
+    });
+  }
   return json(result.data as object, { headers: { "cache-control": route.cache } });
 }

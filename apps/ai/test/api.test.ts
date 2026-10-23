@@ -27,8 +27,8 @@ describe("datspace-ai", () => {
   it("refuses /admin/deploy without the token", async () => {
     expect((await deploy("abc1234")).status).toBe(401);
     expect((await deploy("abc1234", "wrong")).status).toBe(401);
-    const ledger = await exports.default.fetch(`${BASE}/api/ledger`);
-    expect((await ledger.json<{ events: unknown[] }>()).events).toEqual([]);
+    const live = await exports.default.fetch(`${BASE}/live.json`);
+    expect((await live.json<{ events: { type: string }[] }>()).events.filter((e) => e.type === "deploy")).toEqual([]);
   });
 
   it("records a deploy and serves it from /api/ledger", async () => {
@@ -37,8 +37,9 @@ describe("datspace-ai", () => {
     const ledger = await exports.default.fetch(`${BASE}/api/ledger?limit=5`);
     const body = await ledger.json<{ apiVersion: string; events: { type: string; data: unknown }[] }>();
     expect(body.apiVersion).toBe(API_VERSION);
-    expect(body.events).toHaveLength(1);
-    expect(body.events[0]).toMatchObject({ type: "deploy", data: { commit: "0123456789abcdef" } });
+    expect(body.events.filter((e) => e.type === "deploy")).toEqual([
+      expect.objectContaining({ data: { commit: "0123456789abcdef" } }),
+    ]);
   });
 
   it("rejects a malformed deploy body", async () => {
@@ -55,9 +56,50 @@ describe("datspace-ai", () => {
     expect(await missing.json()).toMatchObject({ error: { fix: expect.stringContaining("/api/stations") } });
   });
 
-  it("forwards every other path to datspace-web", async () => {
-    const res = await exports.default.fetch(`${BASE}/colophon`);
-    expect(await res.text()).toBe("web /colophon");
+  it("forwards every other path to datspace-web, and / to its /ai page", async () => {
+    expect(await (await exports.default.fetch(`${BASE}/colophon`)).text()).toBe("web /colophon");
+    expect(await (await exports.default.fetch(`${BASE}/`)).text()).toBe("web /ai");
+  });
+
+  it("serves one work as JSON and as markdown", async () => {
+    const work = await exports.default.fetch(`${BASE}/api/work/agent-native-interface`);
+    expect(await work.json()).toMatchObject({ slug: "agent-native-interface", story: { question: expect.any(String) } });
+    const md = await exports.default.fetch(`${BASE}/api/work/agent-native-interface.md`);
+    expect(md.headers.get("content-type")).toContain("text/markdown");
+    const text = await md.text();
+    expect(text).toMatch(/^# The agent-native interface\n/);
+    expect(text).toContain("npx datspace");
+    expect((await exports.default.fetch(`${BASE}/api/work/missing`)).status).toBe(404);
+  });
+
+  it("serves search, graph, and profile", async () => {
+    const search = await (await exports.default.fetch(`${BASE}/api/search?q=agent&limit=5`)).json<{ hits: { slug: string }[] }>();
+    expect(search.hits[0]?.slug).toBe("agent-native-interface");
+    expect((await exports.default.fetch(`${BASE}/api/search`)).status).toBe(400);
+    const graph = await (await exports.default.fetch(`${BASE}/api/graph`)).json<{ nodes: unknown[] }>();
+    expect(graph.nodes.length).toBeGreaterThan(6);
+    expect(await (await exports.default.fetch(`${BASE}/api/profile`)).json()).toMatchObject({
+      contact: { email: "jared@datspace.io" },
+    });
+  });
+
+  it("logs each tool call with surface and tool only", async () => {
+    await exports.default.fetch(`${BASE}/api/search?q=secret-query-text`);
+    await exports.default.fetch(`${BASE}/api/profile`, { headers: { "x-datspace-client": "cli/0.1.0" } });
+    const live = await (await exports.default.fetch(`${BASE}/live.json`)).json<{ events: { type: string; data: unknown }[] }>();
+    const calls = live.events.filter((e) => e.type === "agent.call").map((e) => e.data);
+    expect(calls).toContainEqual({ surface: "json", tool: "search" });
+    expect(calls).toContainEqual({ surface: "cli", tool: "get_profile" });
+    expect(JSON.stringify(live.events)).not.toContain("secret-query-text");
+  });
+
+  it("serves llms.txt with the MCP URL and every station", async () => {
+    const res = await exports.default.fetch(`${BASE}/llms.txt`);
+    expect(res.headers.get("content-type")).toContain("text/plain");
+    const text = await res.text();
+    expect(text).toContain("https://datspace.ai/mcp");
+    expect(text).toContain("https://datspace.ai/api/work/agent-native-interface.md");
+    expect(text).toContain("npx datspace ls");
   });
 });
 

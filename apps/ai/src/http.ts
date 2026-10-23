@@ -1,6 +1,6 @@
 import { API_VERSION, type ErrorBody, type ErrorCode } from "@datspace/contract";
 
-const STATUS: Record<ErrorCode, number> = { invalid_input: 400, not_found: 404, internal: 500 };
+const STATUS: Record<ErrorCode, number> = { invalid_input: 400, not_found: 404, rate_limited: 429, internal: 500 };
 
 /** Every JSON response carries `apiVersion`. */
 export function json(body: object, init: ResponseInit = {}): Response {
