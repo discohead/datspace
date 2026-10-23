@@ -15,7 +15,7 @@ describe("Ledger", () => {
     const second = await ledger.append({ type: "agent.call", data: { surface: "mcp", tool: "search" } });
     expect(first).toMatchObject({ seq: 1, prevHash: GENESIS_HASH });
     expect(second).toMatchObject({ seq: 2, prevHash: first.hash });
-    expect(await ledger.recent(10)).toEqual([second, first]);
+    expect(await ledger.recent({ limit: 10 })).toEqual([second, first]);
   });
 
   it("serializes concurrent appends", async () => {
@@ -37,19 +37,19 @@ describe("Ledger", () => {
       error = err;
     }
     expect(String(error)).toContain("Unrecognized key");
-    expect(await ledger.recent(10)).toEqual([]);
+    expect(await ledger.recent({ limit: 10 })).toEqual([]);
   });
 
   it("pages backward and clamps the limit", async () => {
     const ledger = stub("paging");
     for (let i = 0; i < 5; i++) await ledger.append({ type: "deploy", data: { commit: "abc1234" } });
-    expect((await ledger.recent(2)).map((e) => e.seq)).toEqual([5, 4]);
-    expect((await ledger.recent(2, 4)).map((e) => e.seq)).toEqual([3, 2]);
-    expect(await ledger.recent(0)).toHaveLength(1);
-    expect(await ledger.recent(1000)).toHaveLength(5);
+    expect((await ledger.recent({ limit: 2 })).map((e) => e.seq)).toEqual([5, 4]);
+    expect((await ledger.recent({ limit: 2, beforeSeq: 4 })).map((e) => e.seq)).toEqual([3, 2]);
+    expect(await ledger.recent({ limit: 0 })).toHaveLength(1);
+    expect(await ledger.recent({ limit: 1000 })).toHaveLength(5);
     await ledger.append({ type: "agent.call", data: { surface: "mcp", tool: "search" } });
-    expect((await ledger.recent(10, undefined, "deploy")).map((e) => e.seq)).toEqual([5, 4, 3, 2, 1]);
-    expect((await ledger.recent(10, undefined, "agent.call")).map((e) => e.seq)).toEqual([6]);
+    expect((await ledger.recent({ limit: 10, type: "deploy" })).map((e) => e.seq)).toEqual([5, 4, 3, 2, 1]);
+    expect((await ledger.recent({ limit: 10, type: "agent.call" })).map((e) => e.seq)).toEqual([6]);
   });
 
   it("verifies the chain, then finds a tampered row", async () => {

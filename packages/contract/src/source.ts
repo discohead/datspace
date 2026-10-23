@@ -25,8 +25,14 @@ export interface Source {
   ledger(limit: number, type?: LedgerEventType): Promise<LedgerEvent[]>;
 }
 
+export interface RecentOptions {
+  limit?: number;
+  beforeSeq?: number;
+  type?: LedgerEventType;
+}
+
 export interface LedgerReader {
-  recent(limit: number, beforeSeq?: number, type?: LedgerEventType): Promise<LedgerEvent[]>;
+  recent(options: RecentOptions): Promise<LedgerEvent[]>;
 }
 
 const SNIPPET_RADIUS = 60;
@@ -64,7 +70,7 @@ export function createStaticSource(content: ContentBundle, ledger: LedgerReader)
     },
 
     ledger(limit, type) {
-      return ledger.recent(limit, undefined, type);
+      return ledger.recent({ limit, type });
     },
   };
 }

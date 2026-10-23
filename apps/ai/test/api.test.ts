@@ -42,6 +42,14 @@ describe("datspace-ai", () => {
     ]);
   });
 
+  it("reports the running commit to CI", async () => {
+    expect((await exports.default.fetch(`${BASE}/admin/version`)).status).toBe(401);
+    const res = await exports.default.fetch(`${BASE}/admin/version`, {
+      headers: { authorization: "Bearer test-deploy-token" },
+    });
+    expect(await res.json()).toMatchObject({ worker: "dev", ledger: "dev" });
+  });
+
   it("rejects a malformed deploy body", async () => {
     expect((await deploy("not a sha", "test-deploy-token")).status).toBe(400);
   });

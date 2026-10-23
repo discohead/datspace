@@ -4,11 +4,17 @@ import { json, jsonError } from "./http.ts";
 
 const DeployBody = z.strictObject({ commit: z.string().regex(/^[0-9a-f]{7,40}$/) });
 
-/** `POST /admin/deploy`: CI records each deploy's commit in the Ledger. */
+/**
+ * `GET /admin/version`: which commit the Worker and the Ledger are running.
+ * `POST /admin/deploy`: CI records each deploy's commit in the Ledger.
+ */
 export async function handleAdmin(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url);
-  if (url.pathname !== "/admin/deploy" || request.method !== "POST") {
-    return jsonError({ error: { code: "not_found", message: "Not found.", fix: "POST /admin/deploy." } });
+  const route = `${request.method} ${url.pathname}`;
+  if (route !== "POST /admin/deploy" && route !== "GET /admin/version") {
+    return jsonError({
+      error: { code: "not_found", message: "Not found.", fix: "GET /admin/version or POST /admin/deploy." },
+    });
   }
   if (!(await authorized(request, env))) {
     return jsonError(
@@ -21,6 +27,14 @@ export async function handleAdmin(request: Request, env: Env): Promise<Response>
       },
       401,
     );
+  }
+
+  if (route === "GET /admin/version") {
+    // A Ledger still on code from before `version()` existed rejects the call.
+    const ledgerVersion = await ledger(env)
+      .version()
+      .catch(() => "unknown");
+    return json({ worker: env.COMMIT, ledger: ledgerVersion }, { headers: { "cache-control": "no-store" } });
   }
 
   const parsed = DeployBody.safeParse(await request.json().catch(() => null));

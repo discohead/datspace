@@ -4,7 +4,7 @@ import {
   canonicalJson,
   ledgerHash,
   type LedgerEvent,
-  type LedgerEventType,
+  type RecentOptions,
 } from "@datspace/contract";
 import { DurableObject } from "cloudflare:workers";
 import { z } from "zod";
@@ -71,7 +71,7 @@ export class Ledger extends DurableObject<Env> {
   }
 
   /** Newest first. `limit` is clamped to 1–100; `beforeSeq` pages backward; `type` filters. */
-  async recent(limit = 50, beforeSeq?: number, type?: LedgerEventType): Promise<LedgerEvent[]> {
+  async recent({ limit = 50, beforeSeq, type }: RecentOptions = {}): Promise<LedgerEvent[]> {
     const n = Math.min(Math.max(Math.trunc(limit) || 1, 1), MAX_RECENT);
     const rows = this.ctx.storage.sql.exec<Row>(
       `SELECT * FROM events WHERE seq < ? AND (? IS NULL OR type = ?) ORDER BY seq DESC LIMIT ?`,
@@ -81,6 +81,14 @@ export class Ledger extends DurableObject<Env> {
       n,
     );
     return rows.toArray().map(toEvent);
+  }
+
+  /**
+   * The commit this instance is running. Code reaches Durable Objects
+   * eventually, so CI waits for this to match before recording a deploy.
+   */
+  async version(): Promise<string> {
+    return this.env.COMMIT;
   }
 
   /** Recomputes every hash from `fromSeq` on and reports the first row that doesn't match. */

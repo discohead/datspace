@@ -50,7 +50,7 @@ export default {
     }
     // The live view's feed. Not a tool, so reading it doesn't add to the Ledger it shows.
     if (url.pathname === "/live.json") {
-      return json({ events: await ledger(env).recent(50) }, { headers: { "cache-control": "no-store" } });
+      return json({ events: await ledger(env).recent({ limit: 50 }) }, { headers: { "cache-control": "no-store" } });
     }
     if (url.pathname === "/") return env.WEB.fetch(new Request(new URL("/ai", url), request));
     return env.WEB.fetch(request);

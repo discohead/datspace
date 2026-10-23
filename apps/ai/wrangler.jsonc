@@ -10,6 +10,8 @@
   "durable_objects": {
     "bindings": [{ "name": "LEDGER", "class_name": "Ledger" }]
   },
+  // CI deploys with --var COMMIT:<sha>, so the Worker and the Ledger can report which code they run.
+  "vars": { "COMMIT": "dev" },
   // /mcp and /api/*: 120 requests a minute per client, per location.
   "ratelimits": [{ "name": "AGENT_LIMIT", "namespace_id": "1001", "simple": { "limit": 120, "period": 60 } }],
   // Human pages on datspace.ai are served by datspace-web.

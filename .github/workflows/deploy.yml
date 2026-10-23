@@ -34,7 +34,22 @@ jobs:
       - name: Deploy datspace-web
         run: pnpm --filter @datspace/web exec wrangler deploy
       - name: Deploy datspace-ai
-        run: pnpm --filter @datspace/ai exec wrangler deploy
+        run: pnpm --filter @datspace/ai exec wrangler deploy --var "COMMIT:$GITHUB_SHA"
+
+      # Code reaches Durable Objects eventually; wait until the Ledger runs this commit.
+      - name: Wait for the Ledger to run this commit
+        env:
+          AI_URL: ${{ vars.AI_URL }}
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+        run: |
+          for attempt in $(seq 1 60); do
+            version=$(curl --silent --show-error -H "Authorization: Bearer $DEPLOY_TOKEN" "$AI_URL/admin/version")
+            echo "$version"
+            [ "$(echo "$version" | jq -r '.worker + " " + .ledger')" = "$GITHUB_SHA $GITHUB_SHA" ] && exit 0
+            sleep 10
+          done
+          echo "The Ledger did not pick up $GITHUB_SHA within 10 minutes." >&2
+          exit 1
 
       - name: Record the deploy in the Ledger
         env:

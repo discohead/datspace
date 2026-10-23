@@ -61,6 +61,13 @@ Keep this table in sync with `package.json`.
 8. **Accessibility floor.** The dial works by keyboard, `prefers-reduced-motion` gets a still frame, and no WebGL falls back to the index.
 9. **Public repo.** Secrets live in Wrangler and GitHub secrets, never in files. Write code, comments, and commit messages for a reader who might hire you.
 
+## Durable Object code updates
+
+New code reaches a Durable Object eventually, not at deploy time; on October 22 the Ledger served pre-deploy code for at least four minutes after one deploy and about 90 seconds after the next. So:
+
+- Keep RPC methods between Workers and actors backward compatible. Add parameters as optional fields on an options object, never by changing positional arguments.
+- CI deploys `datspace-ai` with `--var COMMIT:<sha>` and waits on `GET /admin/version` until both the Worker and the Ledger report it before recording the deploy or running checks.
+
 ## Don't
 
 - Add Tailwind, UI component kits, or effect libraries such as Svelte Bits or Canvas UI. Effects are authored here.
