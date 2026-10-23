@@ -49,7 +49,7 @@ Output: The `clock`, `content`, and `contract` packages; a `datspace-web` Worker
 
 ### Task 5: Build the `datspace-web` skeleton
 
-**Files**: `apps/web/package.json`, `apps/web/svelte.config.js`, `apps/web/vite.config.ts`, `apps/web/wrangler.jsonc`, `apps/web/src/app.html`, `apps/web/src/routes/{+layout.ts,+page.svelte,index/+page.svelte,index/+page.ts}`
+**Files**: `apps/web/package.json`, `apps/web/vite.config.ts` (SvelteKit 3 has no `svelte.config.js`), `apps/web/wrangler.jsonc`, `apps/web/src/app.html`, `apps/web/src/routes/{+layout.ts,+page.svelte,index/+page.svelte,index/+page.ts}`
 **Action**: **Verify first**: read the current SvelteKit 3 and `@sveltejs/adapter-cloudflare` 8 docs and use their config keys, not the sketches in ARCHITECTURE. Prerender every route. `/` is a placeholder heading for now (phase 02 replaces it with the tuner). `/index` lists stations from `content.json`: frequency, title, summary, in tabular figures. Set the 1-bit base styles now: `#000` and `#fff` tokens, one grotesk and its mono sibling (self-hosted, no font CDN), `font-variant-numeric: tabular-nums` on readouts. No bindings.
 **Verify**: `pnpm --filter @datspace/web build && pnpm --filter @datspace/web exec wrangler deploy --dry-run`; then `pnpm --filter @datspace/web dev` and `curl -s localhost:<port>/index` lists both stations.
 **Done**: The site builds, prerenders, and passes a Wrangler dry run.

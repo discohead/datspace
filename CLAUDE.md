@@ -25,17 +25,28 @@ After launch: workers/actors (Network, Work, Ledger, Inbox), scripts/publish.ts,
 
 ## Commands
 
-Phase 01 creates these; keep this table in sync with `package.json`.
+Keep this table in sync with `package.json`.
 
 | Task | Command |
 | --- | --- |
 | Install | `pnpm install` |
-| Typecheck everything | `pnpm -r typecheck` |
-| Test everything | `pnpm -r test` |
+| Build everything (content first; typecheck and test need it) | `pnpm build` |
+| Typecheck everything | `pnpm typecheck` |
+| Test everything | `pnpm test` |
+| Build content only | `pnpm --filter @datspace/content build` |
 | Run the site | `pnpm --filter @datspace/web dev` |
-| Run a Worker locally | `pnpm --filter <package> dev` (wraps `wrangler dev`) |
-| Build content | `pnpm --filter @datspace/content build` |
-| Deploy | CI only: web → ai, then `POST /admin/deploy` |
+| Run datspace-ai locally | `pnpm --filter @datspace/ai dev` (needs `apps/ai/.dev.vars` with `DEPLOY_TOKEN`) |
+| Check the public Ledger's hash chain | `AI_URL=<url> pnpm verify:ledger` |
+| Deploy | CI only, on push to `main`: web → ai, then `POST /admin/deploy` |
+
+Until phase 06 attaches the domains, the Workers are at `https://datspace-web.datspace-web.workers.dev` and `https://datspace-ai.datspace-web.workers.dev` (repo variables `WEB_URL` and `AI_URL`).
+
+## SvelteKit 3 notes
+
+- Config lives in `vite.config.ts` (`sveltekit({ adapter, ... })`); `svelte.config.js` is gone.
+- `$lib` is `#lib`, declared in `apps/web/package.json` `imports`. Imports need extensions.
+- `tsconfig.json` extends `$app/tsconfig`.
+- The index route is `/index/` (trailing slash), and `apps/web/_redirects` sends `/index` there, because `/index` would prerender to the root `index.html`.
 
 ## Non-negotiables
 

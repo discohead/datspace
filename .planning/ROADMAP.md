@@ -16,7 +16,7 @@ Ship datspace.io, datspace.ai, and the `datspace` CLI by **October 30, 2026**, t
 
 ## Phases
 
-- [ ] **Phase 01: Foundation** - Monorepo, shared packages, both Workers and the Ledger on workers.dev, deploy on push
+- [x] **Phase 01: Foundation** - Monorepo, shared packages, both Workers and the Ledger on workers.dev, deploy on push
 - [ ] **Phase 02: The tuner** - The dial, the 1-bit field, glyphs, readouts, and every fallback
 - [ ] **Phase 03: datspace.io** - Index, station pages, about, colophon, tape, band selector, sound
 - [ ] **Phase 04: datspace.ai** - Stateless MCP, the JSON API, llms.txt, the live view, and the answerability suite
@@ -100,8 +100,8 @@ Never cut: the tuner, the index, station pages, MCP, `npx datspace ls`, and the 
 
 | Phase | Status | Completed |
 | --- | --- | --- |
-| 01. Foundation | Planned | - |
-| 02. The tuner | Not started | - |
+| 01. Foundation | Complete | 2026-10-22 |
+| 02. The tuner | Next | - |
 | 03. datspace.io | Not started | - |
 | 04. datspace.ai | Not started | - |
 | 05. CLI | Not started | - |
