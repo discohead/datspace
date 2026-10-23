@@ -47,3 +47,9 @@ jobs:
             -H "Content-Type: application/json" \
             -d "{\"commit\":\"$GITHUB_SHA\"}" \
             | jq '{seq: .event.seq, commit: .event.data.commit, hash: .event.hash}'
+
+      # axe-core in the runner's Chrome, against the pages just deployed.
+      - name: Check accessibility
+        env:
+          WEB_URL: ${{ vars.WEB_URL }}
+        run: pnpm check:a11y

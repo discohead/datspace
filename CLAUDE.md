@@ -36,10 +36,11 @@ Keep this table in sync with `package.json`.
 | Build content only | `pnpm --filter @datspace/content build` |
 | Run the site | `pnpm --filter @datspace/web dev` |
 | Run datspace-ai locally | `pnpm --filter @datspace/ai dev` (needs `apps/ai/.dev.vars` with `DEPLOY_TOKEN`) |
-| Check the public Ledger's hash chain | `AI_URL=<url> pnpm verify:ledger` |
+| Check the public Ledger's hash chain | `AI_URL=https://datspace.ai pnpm verify:ledger` |
+| Audit accessibility (axe-core, installed Chrome) | `WEB_URL=https://datspace.io pnpm check:a11y` |
 | Deploy | CI only, on push to `main`: web → ai, then `POST /admin/deploy` |
 
-Until phase 06 attaches the domains, the Workers are at `https://datspace-web.datspace-web.workers.dev` and `https://datspace-ai.datspace-web.workers.dev` (repo variables `WEB_URL` and `AI_URL`).
+`datspace-web` serves datspace.io. `datspace-ai` serves datspace.ai and redirects datspace.dev, .fm, .music, and .studio to `https://datspace.io/#<band>` (static assets on datspace-web would be served before any redirect code). Repo variables `WEB_URL` and `AI_URL` hold the two origins.
 
 ## SvelteKit 3 notes
 

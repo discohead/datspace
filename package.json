@@ -10,11 +10,14 @@
     "build": "pnpm -r build",
     "typecheck": "pnpm -r typecheck && tsc -p scripts",
     "test": "pnpm -r test",
-    "verify:ledger": "node --disable-warning=ExperimentalWarning scripts/verify-ledger.ts"
+    "verify:ledger": "node --disable-warning=ExperimentalWarning scripts/verify-ledger.ts",
+    "check:a11y": "node --disable-warning=ExperimentalWarning scripts/check-a11y.ts"
   },
   "devDependencies": {
     "@datspace/contract": "workspace:*",
     "@types/node": "^24.0.0",
+    "axe-core": "^4.14.0",
+    "playwright-core": "^1.64.1",
     "typescript": "^6.0.3",
     "vitest": "^4.1.12",
     "zod": "^4.6.7"
