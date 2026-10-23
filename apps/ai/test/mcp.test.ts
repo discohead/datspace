@@ -52,6 +52,21 @@ describe("MCP", () => {
     expect(JSON.stringify(result.structuredContent)).toContain("agent-native-interface");
   });
 
+  it("returns the contract's error, with a fix, for invalid input", async () => {
+    const result = await client.callTool({ name: "transmit", arguments: { reply_to: "not-an-email", body: "Hi" } });
+    expect(result.isError).toBe(true);
+    const text = (result.content as { type: string; text: string }[])[0]!.text;
+    expect(JSON.parse(text)).toMatchObject({ error: { code: "invalid_input", message: expect.stringContaining("reply_to") } });
+  });
+
+  it("still advertises each tool's input schema", async () => {
+    const { tools } = await client.listTools();
+    const transmit = tools.find((t) => t.name === "transmit")!;
+    expect(transmit.inputSchema.required).toEqual(expect.arrayContaining(["reply_to", "body"]));
+    const search = tools.find((t) => t.name === "search")!;
+    expect(Object.keys(search.inputSchema.properties ?? {})).toEqual(["query", "limit"]);
+  });
+
   it("returns a fixable error for an unknown slug", async () => {
     const result = await client.callTool({ name: "get_work", arguments: { slug: "missing" } });
     expect(result.isError).toBe(true);

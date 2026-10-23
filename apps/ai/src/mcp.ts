@@ -1,5 +1,5 @@
 import { API_VERSION, callTool, tools } from "@datspace/contract";
-import { McpServer, type CallToolResult } from "@modelcontextprotocol/server";
+import { McpServer, type CallToolResult, type StandardSchemaWithJSON } from "@modelcontextprotocol/server";
 import { createMcpHandler } from "agents/mcp/server";
 import { source } from "./env.ts";
 import { deliver } from "./transmit.ts";
@@ -29,7 +29,7 @@ function createServer(env: Env, ctx: ExecutionContext, request: Request): McpSer
       {
         title: tool.title,
         description: tool.description,
-        inputSchema: tool.input,
+        inputSchema: advertiseOnly(tool.input),
         outputSchema: tool.output,
         annotations: tool.readOnly
           ? { readOnlyHint: true, idempotentHint: true, openWorldHint: false }
@@ -53,4 +53,21 @@ function createServer(env: Env, ctx: ExecutionContext, request: Request): McpSer
     );
   }
   return server;
+}
+
+/**
+ * Advertises a tool's input schema in tools/list but lets every call through
+ * to the contract, which validates it. That way a bad call over MCP gets the
+ * same { error: { code, message, fix } } as over JSON, not the SDK's text.
+ */
+function advertiseOnly(schema: StandardSchemaWithJSON): StandardSchemaWithJSON {
+  const standard = schema["~standard"];
+  return {
+    "~standard": {
+      vendor: standard.vendor,
+      version: standard.version,
+      jsonSchema: standard.jsonSchema,
+      validate: (value: unknown) => ({ value }),
+    },
+  } as StandardSchemaWithJSON;
 }
