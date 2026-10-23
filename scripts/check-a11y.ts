@@ -9,7 +9,7 @@ import { createRequire } from "node:module";
 import { chromium } from "playwright-core";
 
 const base = (process.env.WEB_URL ?? "http://127.0.0.1:8788").replace(/\/$/, "");
-const pages = ["/", "/index/", "/s/agent-native-interface", "/about", "/colophon", "/tape", "/ai"];
+const pages = ["/", "/index/", "/s/agent-native-interface", "/about", "/colophon", "/tape", "/ai", "/s/1-bit-studies"];
 
 const axeSource = await readFile(createRequire(import.meta.url).resolve("axe-core/axe.min.js"), "utf8");
 

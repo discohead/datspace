@@ -39,6 +39,13 @@
     {/each}
   </dl>
 
+  {#if data.seeds.length > 0}
+    <!-- p5 and the studies load only on this station's page. -->
+    {#await import("#lib/studies/Studies.svelte") then { default: Studies }}
+      <Studies seeds={data.seeds} />
+    {/await}
+  {/if}
+
   <div class="prose">{@html data.html}</div>
 
   <section class="links" aria-labelledby="links">

@@ -40,7 +40,7 @@ Frequencies sit 3.6 MHz apart so the static fully returns between them. The dial
 | 95.9 | `actors-all-the-way-down` | datspace.io | Oct 28, cuttable | The essay. Hewitt to Durable Objects, Scheme, agents as actors, closing on WorldPrompt. If it isn't ready, it stays an unlit marker. |
 | 99.5 | `aux` | datspace.io | Oct 25 | Swift CLI and MCP server for Apple MusicKit. Source: github.com/discohead/aux. |
 | 103.1 | `mixpanel-headless` | datspace.io | Oct 25 | `mixpanel_data` and the `mp` CLI. Proof of execution, not the headline; check what you can say publicly. |
-| 106.7 | `1-bit-studies` | datspace.io | Oct 26, cuttable | The p5.js and Threlte sketches behind the tuner. Claude extracts two or three studies from the tuner work in phase 02; you write the notes. |
+| 106.7 | `1-bit-studies` | datspace.io | Oct 26 | Live with three playable studies (denoising by hand, growing a glyph, threshold). You write the four beats and the body. |
 
 ## Pages
 
