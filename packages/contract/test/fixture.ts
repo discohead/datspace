@@ -37,6 +37,7 @@ export const content: ContentBundle = {
       body: "Agents connect over MCP, or run npx datspace ls in a terminal.",
     }),
   ],
+  pages: [],
   profile: {
     basics: { name: "Jared McFarland", label: "Prototype researcher", summary: "Builds things.", profiles: [] },
     work: [],

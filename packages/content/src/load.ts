@@ -3,12 +3,14 @@ import { join, relative } from "node:path";
 import {
   ClockConfig,
   MIN_STATION_SPACING,
+  PageFrontmatter,
   Profile,
   StationFrontmatter,
   canonicalJson,
   sha256Hex,
   type BundledStation,
   type ContentBundle,
+  type Page,
   type WorkDoc,
 } from "@datspace/contract";
 import { parse as parseYaml } from "yaml";
@@ -47,6 +49,8 @@ export async function loadContent(root: string): Promise<ContentBundle> {
   }
   checkStations(loaded, problems);
 
+  const pages = await loadPages(root, problems);
+
   const profile = await readJson(root, "profile.json", Profile, problems);
   const clock = await readJson(root, "clock.json", ClockConfig, problems);
 
@@ -60,7 +64,47 @@ export async function loadContent(root: string): Promise<ContentBundle> {
       glyphSeed: await sha256Hex(doc.slug),
     })),
   );
-  return { stations, profile, clock };
+  return { stations, pages, profile, clock };
+}
+
+async function loadPages(root: string, problems: string[]): Promise<Page[]> {
+  const dir = join(root, "pages");
+  const names = (await readdir(dir).catch(() => [] as string[])).filter((f) => f.endsWith(".md")).sort();
+  const pages: Page[] = [];
+  for (const name of names) {
+    const path = join(dir, name);
+    const file = relative(root, path);
+    const split = splitFrontmatter(file, await readFile(path, "utf8"), problems);
+    if (!split) continue;
+    const parsed = PageFrontmatter.safeParse(split.data);
+    if (!parsed.success) {
+      problems.push(...describe(file, parsed.error.issues));
+      continue;
+    }
+    if (name !== `${parsed.data.slug}.md`) {
+      problems.push(`${file}: slug: "${parsed.data.slug}" must match the file name (${parsed.data.slug}.md)`);
+    }
+    pages.push({ ...parsed.data, body: split.body });
+  }
+  return pages;
+}
+
+function splitFrontmatter(
+  file: string,
+  text: string,
+  problems: string[],
+): { data: unknown; body: string } | null {
+  const match = FRONTMATTER.exec(text);
+  if (!match) {
+    problems.push(`${file}: frontmatter: the file must start with a --- fenced YAML block`);
+    return null;
+  }
+  try {
+    return { data: parseYaml(match[1] ?? ""), body: (match[2] ?? "").trim() };
+  } catch (err) {
+    problems.push(`${file}: frontmatter: ${(err as Error).message.split("\n")[0]}`);
+    return null;
+  }
 }
 
 /** SHA-256 of canonical JSON over frontmatter plus body: equal content, equal hash. */
@@ -69,18 +113,9 @@ export function contentHash(doc: WorkDoc): Promise<string> {
 }
 
 function parseStation(file: string, text: string, problems: string[]): WorkDoc | null {
-  const match = FRONTMATTER.exec(text);
-  if (!match) {
-    problems.push(`${file}: frontmatter: the file must start with a --- fenced YAML block`);
-    return null;
-  }
-  let data: unknown;
-  try {
-    data = parseYaml(match[1] ?? "");
-  } catch (err) {
-    problems.push(`${file}: frontmatter: ${(err as Error).message.split("\n")[0]}`);
-    return null;
-  }
+  const split = splitFrontmatter(file, text, problems);
+  if (!split) return null;
+  const data = split.data;
   const parsed = StationFrontmatter.safeParse(data);
   if (!parsed.success) {
     problems.push(...describe(file, parsed.error.issues));
@@ -90,7 +125,7 @@ function parseStation(file: string, text: string, problems: string[]): WorkDoc |
   if (!file.endsWith(`/${expected}`)) {
     problems.push(`${file}: slug: "${parsed.data.slug}" must match the file name (${expected})`);
   }
-  return { ...parsed.data, body: (match[2] ?? "").trim() };
+  return { ...parsed.data, body: split.body };
 }
 
 function checkStations(loaded: Loaded[], problems: string[]): void {

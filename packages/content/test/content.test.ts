@@ -121,3 +121,21 @@ describe("loadContent", () => {
     expect(found[0]).toMatch(/^stations\/bad\.md: frontmatter: /);
   });
 });
+
+describe("pages", () => {
+  it("loads about and colophon", async () => {
+    const content = await loadContent(real);
+    expect(content.pages.map((p) => p.slug).sort()).toEqual(["about", "colophon"]);
+    expect(content.pages.find((p) => p.slug === "colophon")?.body).toContain(
+      "dedicated to Carl Hewitt (1944–2022), who proposed the actor model in 1973.",
+    );
+  });
+
+  it("names the file and field when a page is missing its title", async () => {
+    await cp(join(real, "pages"), join(root, "pages"), { recursive: true });
+    await writeFile(join(root, "pages", "untitled.md"), "---\nslug: untitled\ndescription: No title.\n---\nBody\n");
+    const found = await problems();
+    expect(found).toHaveLength(1);
+    expect(found[0]).toMatch(/^pages\/untitled\.md: title: /);
+  });
+});

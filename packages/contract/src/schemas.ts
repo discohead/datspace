@@ -188,9 +188,22 @@ export const BundledStation = z.strictObject({
   glyphSeed: z.string().length(64),
 });
 
+/** The frontmatter of `packages/content/pages/<slug>.md`: human pages such as about and colophon. */
+export const PageFrontmatter = z.strictObject({
+  slug: Slug,
+  title: z.string().min(1),
+  description: z.string().min(1).max(160),
+});
+
+export const Page = z.strictObject({
+  ...PageFrontmatter.shape,
+  body: z.string(),
+});
+
 /** `packages/content/.generated/content.json`, read by both Workers. */
 export const ContentBundle = z.strictObject({
   stations: z.array(BundledStation),
+  pages: z.array(Page),
   profile: Profile,
   clock: ClockConfig,
 });
@@ -216,3 +229,5 @@ export type LedgerInput = z.infer<typeof LedgerInput>;
 export type LedgerEvent = z.infer<typeof LedgerEvent>;
 export type BundledStation = z.infer<typeof BundledStation>;
 export type ContentBundle = z.infer<typeof ContentBundle>;
+export type PageFrontmatter = z.infer<typeof PageFrontmatter>;
+export type Page = z.infer<typeof Page>;
