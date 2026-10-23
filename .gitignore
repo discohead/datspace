@@ -9,3 +9,4 @@ dist/
 .DS_Store
 # Personal brainstorm notes, kept out of the public repo
 .private/
+worker-configuration.d.ts
