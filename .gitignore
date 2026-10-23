@@ -1,0 +1,11 @@
+node_modules/
+.svelte-kit/
+.wrangler/
+dist/
+.generated/
+.dev.vars
+.env*
+*.log
+.DS_Store
+# Personal brainstorm notes, kept out of the public repo
+.private/
