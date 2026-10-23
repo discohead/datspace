@@ -42,7 +42,7 @@ a {
 .page {
   max-width: 44rem;
   margin: 0 auto;
-  padding: 4rem 1.5rem;
+  padding: 2.5rem 1.5rem 5rem;
 }
 
 .visually-hidden {
@@ -52,4 +52,63 @@ a {
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+}
+
+/* Inner pages: quiet, left-aligned, a comfortable measure. */
+.page h1 {
+  font-size: clamp(2.2rem, 6vw, 3.4rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-weight: 600;
+  margin: 0 0 1rem;
+}
+
+.lede {
+  font-size: 1.25rem;
+  line-height: 1.4;
+  margin: 0 0 2.5rem;
+}
+
+.prose {
+  max-width: 38rem;
+}
+
+.prose h2 {
+  font-size: 1.35rem;
+  letter-spacing: -0.015em;
+  margin: 2.5rem 0 0.75rem;
+}
+
+.prose h3 {
+  font-size: 1.1rem;
+  margin: 2rem 0 0.5rem;
+}
+
+.prose p,
+.prose ul,
+.prose ol {
+  margin: 0 0 1.1rem;
+}
+
+.prose li + li {
+  margin-top: 0.35rem;
+}
+
+.prose code {
+  font-family: var(--mono);
+  font-size: 0.9em;
+}
+
+.prose pre {
+  overflow-x: auto;
+  padding: 1rem;
+  border: 1px solid var(--ink);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.prose blockquote {
+  margin: 1.5rem 0;
+  padding-left: 1rem;
+  border-left: 2px solid var(--ink);
 }

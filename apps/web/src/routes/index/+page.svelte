@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Header from "#lib/site/Header.svelte";
+
   let { data } = $props();
 </script>
 
@@ -7,8 +9,11 @@
   <meta name="description" content="Every station on the datspace dial." />
 </svelte:head>
 
+<Header />
+
 <main class="page">
   <h1>Index</h1>
+  <p class="lede">Every station on the dial, in order of frequency.</p>
   <ol class="stations">
     {#each data.stations as station (station.slug)}
       <li class:unlit={station.status === "unlit"}>
@@ -26,7 +31,7 @@
 <style>
   .stations {
     list-style: none;
-    margin: 2rem 0 0;
+    margin: 0;
     padding: 0;
   }
 
