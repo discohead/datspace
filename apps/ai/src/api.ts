@@ -38,7 +38,12 @@ const ROUTES: Route[] = [
   },
   { path: /^\/api\/graph$/, tool: "get_graph", input: () => ({}), cache: "public, max-age=60" },
   { path: /^\/api\/profile$/, tool: "get_profile", input: () => ({}), cache: "public, max-age=60" },
-  { path: /^\/api\/ledger$/, tool: "get_ledger", input: limit, cache: "no-store" },
+  {
+    path: /^\/api\/ledger$/,
+    tool: "get_ledger",
+    input: (url) => ({ ...limit(url), ...(url.searchParams.has("type") ? { type: url.searchParams.get("type") } : {}) }),
+    cache: "no-store",
+  },
 ];
 
 export const API_ENDPOINTS = [
@@ -48,7 +53,7 @@ export const API_ENDPOINTS = [
   "/api/search?q=<query>&limit=<1-20>",
   "/api/graph",
   "/api/profile",
-  "/api/ledger?limit=<1-100>",
+  "/api/ledger?limit=<1-100>&type=<deploy|agent.call>",
 ];
 
 export async function handleApi(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {

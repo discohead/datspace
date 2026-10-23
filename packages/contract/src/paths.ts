@@ -23,6 +23,6 @@ export function toolPath(tool: ToolName, input: Record<string, unknown> = {}): s
     case "get_profile":
       return "/api/profile";
     case "get_ledger":
-      return `/api/ledger${query({ limit: input.limit })}`;
+      return `/api/ledger${query({ limit: input.limit, type: input.type })}`;
   }
 }

@@ -32,10 +32,10 @@
   input: {}
   mustContain: [datspace.io, datspace.ai, lives-on]
 
-- question: Has the network been deployed recently?
+- question: When was the network last deployed?
   tool: get_ledger
-  input: { limit: 20 }
-  mustContain: [deploy]
+  input: { type: deploy, limit: 3 }
+  mustContain: ['"type":"deploy"', commit]
 
 - question: What happens when an agent asks for a work that doesn't exist?
   tool: get_work

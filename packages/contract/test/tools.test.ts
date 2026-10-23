@@ -108,5 +108,6 @@ describe("toolPath", async () => {
     expect(toolPath("search", { query: "Cloudflare Workers", limit: 5 })).toBe("/api/search?q=Cloudflare+Workers&limit=5");
     expect(toolPath("search", { query: "x" })).toBe("/api/search?q=x");
     expect(toolPath("get_ledger")).toBe("/api/ledger");
+    expect(toolPath("get_ledger", { type: "deploy", limit: 3 })).toBe("/api/ledger?limit=3&type=deploy");
   });
 });

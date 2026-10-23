@@ -47,6 +47,9 @@ describe("Ledger", () => {
     expect((await ledger.recent(2, 4)).map((e) => e.seq)).toEqual([3, 2]);
     expect(await ledger.recent(0)).toHaveLength(1);
     expect(await ledger.recent(1000)).toHaveLength(5);
+    await ledger.append({ type: "agent.call", data: { surface: "mcp", tool: "search" } });
+    expect((await ledger.recent(10, undefined, "deploy")).map((e) => e.seq)).toEqual([5, 4, 3, 2, 1]);
+    expect((await ledger.recent(10, undefined, "agent.call")).map((e) => e.seq)).toEqual([6]);
   });
 
   it("verifies the chain, then finds a tampered row", async () => {

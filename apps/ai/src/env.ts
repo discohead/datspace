@@ -11,5 +11,7 @@ export function ledger(env: Env): DurableObjectStub<Ledger> {
 
 export function source(env: Env): Source {
   const stub = ledger(env);
-  return createStaticSource(content, { recent: (limit) => stub.recent(limit) });
+  return createStaticSource(content, {
+    recent: (limit, beforeSeq, type) => stub.recent(limit, beforeSeq, type),
+  });
 }

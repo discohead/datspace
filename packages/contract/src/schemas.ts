@@ -171,6 +171,8 @@ export const LedgerInput = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("message.received"), data: z.strictObject({}) }),
 ]);
 
+export const LedgerEventType = z.enum(["deploy", "publish", "agent.call", "message.received"]);
+
 export const LedgerEvent = z.object({
   seq: z.int().positive(),
   at: z.iso.datetime(),
@@ -227,6 +229,7 @@ export type ClockConfig = z.infer<typeof ClockConfig>;
 export type Surface = z.infer<typeof Surface>;
 export type LedgerInput = z.infer<typeof LedgerInput>;
 export type LedgerEvent = z.infer<typeof LedgerEvent>;
+export type LedgerEventType = z.infer<typeof LedgerEventType>;
 export type BundledStation = z.infer<typeof BundledStation>;
 export type ContentBundle = z.infer<typeof ContentBundle>;
 export type PageFrontmatter = z.infer<typeof PageFrontmatter>;

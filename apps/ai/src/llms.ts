@@ -5,7 +5,7 @@ import { API_ENDPOINTS } from "./api.ts";
 export function llmsTxt(content: ContentBundle, origin: string): string {
   const stations = content.stations
     .filter((s) => s.status === "live")
-    .map((s) => `- [${s.title}](${origin}/api/work/${s.slug}.md): ${s.frequency.toFixed(1)} MHz, ${s.summary}`);
+    .map((s) => `- [${s.title}](${origin}/api/work/${s.slug}.md) (${s.frequency.toFixed(1)} MHz): ${s.summary}`);
   return [
     "# datspace",
     "",

@@ -97,11 +97,14 @@ export const getLedger = defineTool({
   name: "get_ledger",
   title: "Get ledger",
   description:
-    "Returns the most recent network events, such as deploys and tool calls, with times and no arguments.",
-  input: z.strictObject({ limit: z.int().min(1).max(100).default(20) }),
+    "Returns the most recent network events, such as deploys and tool calls, optionally of one type, with times and no arguments.",
+  input: z.strictObject({
+    limit: z.int().min(1).max(100).default(20),
+    type: s.LedgerEventType.optional(),
+  }),
   output: z.strictObject({ events: z.array(s.LedgerEvent) }),
-  async run(source, { limit }) {
-    return { events: await source.ledger(limit) };
+  async run(source, { limit, type }) {
+    return { events: await source.ledger(limit, type) };
   },
 });
 

@@ -53,7 +53,7 @@ export const events: LedgerEvent[] = [
 ];
 
 export const source = createStaticSource(content, {
-  async recent(limit) {
-    return events.slice(-limit).reverse();
+  async recent(limit, _beforeSeq, type) {
+    return events.filter((e) => !type || e.type === type).slice(-limit).reverse();
   },
 });

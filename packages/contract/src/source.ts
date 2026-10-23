@@ -4,6 +4,7 @@ import type {
   ContentBundle,
   Graph,
   LedgerEvent,
+  LedgerEventType,
   Profile,
   SearchHit,
   Station,
@@ -21,11 +22,11 @@ export interface Source {
   search(query: string, limit: number): Promise<SearchHit[]>;
   graph(): Promise<Graph>;
   profile(): Promise<Profile>;
-  ledger(limit: number): Promise<LedgerEvent[]>;
+  ledger(limit: number, type?: LedgerEventType): Promise<LedgerEvent[]>;
 }
 
 export interface LedgerReader {
-  recent(limit: number): Promise<LedgerEvent[]>;
+  recent(limit: number, beforeSeq?: number, type?: LedgerEventType): Promise<LedgerEvent[]>;
 }
 
 const SNIPPET_RADIUS = 60;
@@ -62,8 +63,8 @@ export function createStaticSource(content: ContentBundle, ledger: LedgerReader)
       return content.profile;
     },
 
-    ledger(limit) {
-      return ledger.recent(limit);
+    ledger(limit, type) {
+      return ledger.recent(limit, undefined, type);
     },
   };
 }

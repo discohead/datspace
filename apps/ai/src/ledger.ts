@@ -4,6 +4,7 @@ import {
   canonicalJson,
   ledgerHash,
   type LedgerEvent,
+  type LedgerEventType,
 } from "@datspace/contract";
 import { DurableObject } from "cloudflare:workers";
 import { z } from "zod";
@@ -69,17 +70,16 @@ export class Ledger extends DurableObject<Env> {
     });
   }
 
-  /** Newest first. `limit` is clamped to 1–100; `beforeSeq` pages backward. */
-  async recent(limit = 50, beforeSeq?: number): Promise<LedgerEvent[]> {
+  /** Newest first. `limit` is clamped to 1–100; `beforeSeq` pages backward; `type` filters. */
+  async recent(limit = 50, beforeSeq?: number, type?: LedgerEventType): Promise<LedgerEvent[]> {
     const n = Math.min(Math.max(Math.trunc(limit) || 1, 1), MAX_RECENT);
-    const rows =
-      beforeSeq === undefined
-        ? this.ctx.storage.sql.exec<Row>("SELECT * FROM events ORDER BY seq DESC LIMIT ?", n)
-        : this.ctx.storage.sql.exec<Row>(
-            "SELECT * FROM events WHERE seq < ? ORDER BY seq DESC LIMIT ?",
-            beforeSeq,
-            n,
-          );
+    const rows = this.ctx.storage.sql.exec<Row>(
+      `SELECT * FROM events WHERE seq < ? AND (? IS NULL OR type = ?) ORDER BY seq DESC LIMIT ?`,
+      beforeSeq ?? Number.MAX_SAFE_INTEGER,
+      type ?? null,
+      type ?? null,
+      n,
+    );
     return rows.toArray().map(toEvent);
   }
 
