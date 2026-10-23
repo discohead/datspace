@@ -1,5 +1,6 @@
 import { callTool, workToMarkdown, type ToolName, type Work } from "@datspace/contract";
 import { source } from "./env.ts";
+import { deliver } from "./transmit.ts";
 import { json, jsonError } from "./http.ts";
 import { logCall, surfaceOf } from "./log.ts";
 
@@ -54,10 +55,12 @@ export const API_ENDPOINTS = [
   "/api/graph",
   "/api/profile",
   "/api/ledger?limit=<1-100>&type=<deploy|agent.call>",
+  "POST /api/transmit with JSON { name?, reply_to, body }",
 ];
 
 export async function handleApi(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
   const url = new URL(request.url);
+  if (url.pathname === "/api/transmit") return handleTransmit(request, env, ctx);
   let route: Route | undefined;
   let match: RegExpExecArray | null = null;
   for (const r of ROUTES) {
@@ -96,4 +99,39 @@ export async function handleApi(request: Request, env: Env, ctx: ExecutionContex
     });
   }
   return json(result.data as object, { headers: { "cache-control": route.cache } });
+}
+
+/** `POST /api/transmit`: the one write on the JSON API. */
+async function handleTransmit(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+  if (request.method !== "POST") {
+    return jsonError(
+      {
+        error: {
+          code: "invalid_input",
+          message: "/api/transmit only accepts POST.",
+          fix: 'POST JSON like {"reply_to": "you@example.com", "body": "Hello"}.',
+        },
+      },
+      405,
+    );
+  }
+  const input = await request.json().catch(() => null);
+  if (input === null) {
+    return jsonError({
+      error: {
+        code: "invalid_input",
+        message: "The body isn't JSON.",
+        fix: 'Send JSON like {"reply_to": "you@example.com", "body": "Hello"} with content-type application/json.',
+      },
+    });
+  }
+  const surface = surfaceOf(request);
+  logCall(env, ctx, surface, "transmit");
+  const result = await callTool(
+    "transmit",
+    source(env, (message) => deliver(env, ctx, request, surface, message)),
+    input,
+  );
+  if (!result.ok) return jsonError(result);
+  return json(result.data as object, { status: 201, headers: { "cache-control": "no-store" } });
 }

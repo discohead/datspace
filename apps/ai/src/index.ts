@@ -5,6 +5,7 @@ import { json, jsonError } from "./http.ts";
 import { llmsTxt } from "./llms.ts";
 import { handleMcp } from "./mcp.ts";
 
+export { Inbox } from "./inbox.ts";
 export { Ledger } from "./ledger.ts";
 
 /** Domains on the dial that aren't live yet. They redirect to datspace.io until their phase. */
@@ -40,6 +41,7 @@ export default {
       );
     }
 
+    if (request.method === "OPTIONS" && agentFacing) return preflight();
     if (url.pathname === "/mcp") return handleMcp(request, env, ctx);
     if (url.pathname.startsWith("/api/")) return handleApi(request, env, ctx);
     if (url.pathname.startsWith("/admin/")) return handleAdmin(request, env);
@@ -56,6 +58,19 @@ export default {
     return env.WEB.fetch(request);
   },
 } satisfies ExportedHandler<Env>;
+
+/** CORS preflight for browser clients of the JSON API. */
+function preflight(): Response {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      "access-control-allow-origin": "*",
+      "access-control-allow-methods": "GET, POST, OPTIONS",
+      "access-control-allow-headers": "content-type, x-datspace-client",
+      "access-control-max-age": "86400",
+    },
+  });
+}
 
 /** 120 requests a minute per client, per location. The address is the limiter key only; it's never stored. */
 async function withinLimit(request: Request, env: Env): Promise<boolean> {

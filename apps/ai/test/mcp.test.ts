@@ -20,16 +20,25 @@ beforeEach(async () => {
 afterEach(() => client.close());
 
 describe("MCP", () => {
-  it("lists the six tools, read-only, with one-sentence descriptions", async () => {
+  it("lists the seven tools; only transmit is not read-only", async () => {
     const { tools } = await client.listTools();
     expect(tools.map((t) => t.name).sort()).toEqual(
-      ["get_graph", "get_ledger", "get_profile", "get_work", "list_stations", "search"].sort(),
+      ["get_graph", "get_ledger", "get_profile", "get_work", "list_stations", "search", "transmit"].sort(),
     );
     for (const tool of tools) {
-      expect(tool.description).toMatch(/^Returns .*\.$/);
-      expect(tool.annotations?.readOnlyHint).toBe(true);
+      expect(tool.description).toMatch(/\.$/);
+      expect(tool.annotations?.readOnlyHint).toBe(tool.name !== "transmit");
       expect(tool.inputSchema.type).toBe("object");
     }
+  });
+
+  it("transmits a message", async () => {
+    const result = await client.callTool({
+      name: "transmit",
+      arguments: { reply_to: "agent@example.com", body: "Hello from an agent." },
+    });
+    expect(result.isError).toBeFalsy();
+    expect(result.structuredContent).toMatchObject({ id: expect.any(String), at: expect.any(String) });
   });
 
   it("answers get_profile with structured content", async () => {

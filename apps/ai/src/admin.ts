@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ledger } from "./env.ts";
+import { inbox, ledger } from "./env.ts";
 import { json, jsonError } from "./http.ts";
 
 const DeployBody = z.strictObject({ commit: z.string().regex(/^[0-9a-f]{7,40}$/) });
@@ -11,9 +11,13 @@ const DeployBody = z.strictObject({ commit: z.string().regex(/^[0-9a-f]{7,40}$/)
 export async function handleAdmin(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url);
   const route = `${request.method} ${url.pathname}`;
-  if (route !== "POST /admin/deploy" && route !== "GET /admin/version") {
+  if (route !== "POST /admin/deploy" && route !== "GET /admin/version" && route !== "GET /admin/messages") {
     return jsonError({
-      error: { code: "not_found", message: "Not found.", fix: "GET /admin/version or POST /admin/deploy." },
+      error: {
+        code: "not_found",
+        message: "Not found.",
+        fix: "GET /admin/version, GET /admin/messages, or POST /admin/deploy.",
+      },
     });
   }
   if (!(await authorized(request, env))) {
@@ -27,6 +31,10 @@ export async function handleAdmin(request: Request, env: Env): Promise<Response>
       },
       401,
     );
+  }
+
+  if (route === "GET /admin/messages") {
+    return json({ messages: await inbox(env).list(100) }, { headers: { "cache-control": "no-store" } });
   }
 
   if (route === "GET /admin/version") {

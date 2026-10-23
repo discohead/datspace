@@ -6,7 +6,7 @@ export default defineConfig({
     cloudflareTest({
       wrangler: { configPath: "./wrangler.jsonc" },
       miniflare: {
-        bindings: { DEPLOY_TOKEN: "test-deploy-token" },
+        bindings: { DEPLOY_TOKEN: "test-deploy-token", SENDER_SALT: "test-salt", INBOX_TO: "jared@example.com" },
         serviceBindings: {
           WEB(request: Request) {
             return new Response(`web ${new URL(request.url).pathname}`);

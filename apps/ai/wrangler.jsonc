@@ -5,11 +5,17 @@
   "compatibility_date": "2026-10-22",
   // At launch the Ledger lives here; after launch it moves to the datspace-actors Worker.
   "exports": {
-    "Ledger": { "type": "durable-object", "storage": "sqlite" }
+    "Ledger": { "type": "durable-object", "storage": "sqlite" },
+    "Inbox": { "type": "durable-object", "storage": "sqlite" }
   },
   "durable_objects": {
-    "bindings": [{ "name": "LEDGER", "class_name": "Ledger" }]
+    "bindings": [
+      { "name": "LEDGER", "class_name": "Ledger" },
+      { "name": "INBOX", "class_name": "Inbox" }
+    ]
   },
+  // transmit emails Jared from one address. The destination is the INBOX_TO secret, so it isn't in the repo.
+  "send_email": [{ "name": "MAIL", "allowed_sender_addresses": ["transmit@datspace.io"] }],
   // CI deploys with --var COMMIT:<sha>, so the Worker and the Ledger can report which code they run.
   "vars": { "COMMIT": "dev" },
   // /mcp and /api/*: 120 requests a minute per client, per location.
