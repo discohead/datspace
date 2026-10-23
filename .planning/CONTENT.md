@@ -15,6 +15,8 @@ The posting asks each project to say "what it explores, why it matters, and what
 | `future` | One or two sentences | What does it suggest about where interfaces are going? |
 | body | 300 to 700 words of markdown | The story, with links, code, or a sketch |
 
+In frontmatter, wrap any value that contains `: ` in double quotes, or YAML reads it as a nested field; `pnpm build` names the file and line if you forget.
+
 Write facts, not pitch. Agents read the same text through MCP, and the rule there is facts and links only.
 
 ## Launch stations
