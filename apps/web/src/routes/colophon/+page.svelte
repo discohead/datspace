@@ -4,4 +4,4 @@
   let { data } = $props();
 </script>
 
-<MarkdownPage title={data.title} description={data.description} html={data.html} />
+<MarkdownPage title={data.title} description={data.description} html={data.html} path="/colophon" />

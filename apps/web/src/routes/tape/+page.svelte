@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import Header from "#lib/site/Header.svelte";
+  import Meta from "#lib/site/Meta.svelte";
   import { clearTape, readTape, type TapeEntry } from "#lib/tuner/tape.ts";
 
   let tape = $state<TapeEntry[]>([]);
@@ -25,10 +26,7 @@
   }
 </script>
 
-<svelte:head>
-  <title>Tape · datspace</title>
-  <meta name="description" content="The stations you found on this visit, in order." />
-</svelte:head>
+<Meta title="Tape · datspace" description="The stations you found on this visit, in order." path="/tape" />
 
 <Header />
 

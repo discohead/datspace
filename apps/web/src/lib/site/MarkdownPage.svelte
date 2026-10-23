@@ -1,19 +1,18 @@
 <script lang="ts">
   import Header from "./Header.svelte";
+  import Meta from "./Meta.svelte";
 
   interface Props {
     title: string;
     description: string;
     html: string;
+    path: string;
   }
 
-  let { title, description, html }: Props = $props();
+  let { title, description, html, path }: Props = $props();
 </script>
 
-<svelte:head>
-  <title>{title} · datspace</title>
-  <meta name="description" content={description} />
-</svelte:head>
+<Meta title="{title} · datspace" {description} {path} />
 
 <Header />
 

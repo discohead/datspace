@@ -1,13 +1,11 @@
 <script lang="ts">
   import Header from "#lib/site/Header.svelte";
+  import Meta from "#lib/site/Meta.svelte";
 
   let { data } = $props();
 </script>
 
-<svelte:head>
-  <title>Index · datspace</title>
-  <meta name="description" content="Every station on the datspace dial." />
-</svelte:head>
+<Meta title="Index · datspace" description="Every station on the datspace dial, in order of frequency." path="/index/" />
 
 <Header />
 

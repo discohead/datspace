@@ -366,9 +366,12 @@
     cursor: ew-resize;
   }
 
+  /* A still frame of 1-bit noise paints first, so slow connections open on static, not black; the live field covers it. */
   .field {
     position: absolute;
     inset: 0;
+    background: url("/noise.png") 0 0 / 384px 384px repeat;
+    image-rendering: pixelated;
   }
 
   .plate {

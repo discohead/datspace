@@ -1,6 +1,7 @@
 <script lang="ts">
   import Glyph from "#lib/site/Glyph.svelte";
   import Header from "#lib/site/Header.svelte";
+  import Meta from "#lib/site/Meta.svelte";
 
   let { data } = $props();
   const work = $derived(data.work);
@@ -13,10 +14,7 @@
   ] as const);
 </script>
 
-<svelte:head>
-  <title>{work.title} · datspace</title>
-  <meta name="description" content={work.summary} />
-</svelte:head>
+<Meta title={work.title === "datspace" ? "datspace" : `${work.title} · datspace`} description={work.summary} path="/s/{work.slug}" />
 
 <Header />
 

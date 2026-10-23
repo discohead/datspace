@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import Header from "#lib/site/Header.svelte";
+  import Meta from "#lib/site/Meta.svelte";
 
   let { data } = $props();
 
@@ -50,13 +51,12 @@
   }
 </script>
 
-<svelte:head>
-  <title>datspace.ai</title>
-  <meta
-    name="description"
-    content="Jared McFarland's portfolio as typed tools for agents: MCP, a JSON API, llms.txt, and a CLI, with a public feed of agent activity."
-  />
-</svelte:head>
+<Meta
+  title="datspace.ai"
+  description="Jared McFarland's portfolio as typed tools for agents: MCP, a JSON API, llms.txt, and a CLI, with a public feed of agent activity."
+  path="/"
+  origin="https://datspace.ai"
+/>
 
 <Header />
 
