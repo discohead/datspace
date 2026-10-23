@@ -1,0 +1,22 @@
+{
+  "name": "@datspace/ai",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "types": "wrangler types",
+    "typecheck": "wrangler types > /dev/null && tsc -p . && tsc -p test",
+    "test": "wrangler types > /dev/null && vitest run"
+  },
+  "dependencies": {
+    "@datspace/content": "workspace:*",
+    "@datspace/contract": "workspace:*",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-plugin": "^1.4.7",
+    "wrangler": "^4.152.0"
+  }
+}

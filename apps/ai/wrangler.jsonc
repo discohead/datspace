@@ -1,0 +1,18 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "datspace-ai",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-22",
+  // At launch the Ledger lives here; after launch it moves to the datspace-actors Worker.
+  "exports": {
+    "Ledger": { "type": "durable-object", "storage": "sqlite" }
+  },
+  "durable_objects": {
+    "bindings": [{ "name": "LEDGER", "class_name": "Ledger" }]
+  },
+  // Human pages on datspace.ai are served by datspace-web.
+  "services": [{ "binding": "WEB", "service": "datspace-web" }],
+  // Served on workers.dev until phase 06 attaches datspace.ai.
+  "workers_dev": true,
+  "observability": { "enabled": true }
+}
