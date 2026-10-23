@@ -1,13 +1,16 @@
 <script lang="ts">
+  import Tuner from "#lib/tuner/Tuner.svelte";
+
   let { data } = $props();
 </script>
 
 <svelte:head>
   <title>datspace</title>
-  <meta name="description" content="A tuner for people and an actor network for agents." />
+  <meta
+    name="description"
+    content="Jared McFarland's portfolio as a radio dial: tune through 1-bit static until a piece of work resolves."
+  />
 </svelte:head>
 
-<main class="page">
-  <h1>datspace</h1>
-  <p>The tuner arrives in phase 02. Until then, {data.stations} stations are on the <a href="/index/">index</a>.</p>
-</main>
+<h1 class="visually-hidden">datspace</h1>
+<Tuner stations={data.stations} clock={data.clock} />
