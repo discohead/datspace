@@ -1,0 +1,47 @@
+name: cli-release
+
+# Push a tag like cli-v0.1.0 to stage that version of the datspace CLI on npm.
+# A maintainer then approves the staged version on npmjs.com with 2FA.
+on:
+  push:
+    tags: ["cli-v*"]
+
+permissions:
+  contents: read
+  id-token: write # npm trusted publishing (OIDC); no npm token is stored
+
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false # no caches in release builds
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Check the tag matches the package version
+        run: |
+          version=$(jq -r .version apps/cli/package.json)
+          if [ "cli-v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "Tag $GITHUB_REF_NAME doesn't match apps/cli/package.json version $version." >&2
+            exit 1
+          fi
+
+      - run: pnpm --filter datspace typecheck
+      - run: pnpm --filter datspace test
+      - run: pnpm --filter datspace build
+
+      # Staged publishing needs npm 11.15 or later.
+      - run: npm install --global npm@latest
+
+      # The bundle has no runtime dependencies; workspace devDependencies don't belong in the published manifest.
+      - name: Stage on npm
+        working-directory: apps/cli
+        run: |
+          npm pkg delete devDependencies
+          npm stage publish --access public
