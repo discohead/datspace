@@ -14,7 +14,7 @@ Read these before any work:
 ```
 apps/web            SvelteKit 3 site → Worker "datspace-web" (datspace.io, unlit domains, human pages on datspace.ai)
 apps/ai             Worker "datspace-ai": MCP, JSON API, llms.txt, admin deploy, and the Ledger actor
-apps/cli            TypeScript CLI, published to npm as "datspace"
+apps/cli            TypeScript CLI, published to npm as "datspace" (esbuild bundle, no runtime dependencies)
 packages/contract   Types, zod schemas, tool definitions, Source, API_VERSION (the single source of truth)
 packages/content    Station markdown, schema, loader, content hashes, build to .generated/content.json
 packages/clock      Pure clock math: bars since 1973
@@ -39,6 +39,8 @@ Keep this table in sync with `package.json`.
 | Check the public Ledger's hash chain | `AI_URL=https://datspace.ai pnpm verify:ledger` |
 | Audit accessibility (axe-core, installed Chrome) | `WEB_URL=https://datspace.io pnpm check:a11y` |
 | Deploy | CI only, on push to `main`: web → ai, then `POST /admin/deploy` |
+| Release the CLI | Bump `apps/cli/package.json`, push tag `cli-v<version>`; CI stages it on npm; Jared approves on npmjs.com with 2FA |
+| Try the CLI locally | `pnpm --filter datspace build && node apps/cli/dist/datspace.js ls` |
 
 `datspace-web` serves datspace.io. `datspace-ai` serves datspace.ai and redirects datspace.dev, .fm, .music, and .studio to `https://datspace.io/#<band>` (static assets on datspace-web would be served before any redirect code). Repo variables `WEB_URL` and `AI_URL` hold the two origins.
 

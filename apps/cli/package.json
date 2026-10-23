@@ -1,0 +1,40 @@
+{
+  "name": "datspace",
+  "version": "0.1.0",
+  "description": "Jared McFarland's portfolio network from the terminal: stations, works, search, and the graph, from datspace.ai.",
+  "keywords": [
+    "datspace",
+    "portfolio",
+    "mcp",
+    "agents",
+    "cli"
+  ],
+  "homepage": "https://datspace.ai",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/discohead/datspace.git",
+    "directory": "apps/cli"
+  },
+  "license": "MIT",
+  "author": "Jared McFarland <jared@datspace.io>",
+  "type": "module",
+  "bin": {
+    "datspace": "dist/datspace.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "node --disable-warning=ExperimentalWarning build.ts",
+    "typecheck": "tsc -p .",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@datspace/contract": "workspace:*",
+    "esbuild": "^0.28.2"
+  }
+}
