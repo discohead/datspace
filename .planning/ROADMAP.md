@@ -18,7 +18,7 @@ Ship datspace.io, datspace.ai, and the `datspace` CLI by **October 30, 2026**, t
 
 - [x] **Phase 01: Foundation** - Monorepo, shared packages, both Workers and the Ledger on workers.dev, deploy on push
 - [x] **Phase 02: The tuner** - The dial, the 1-bit field, glyphs, readouts, and every fallback
-- [ ] **Phase 03: datspace.io** - Index, station pages, about, colophon, tape, band selector, sound
+- [x] **Phase 03: datspace.io** - Index, station pages, about, colophon, tape, band selector, sound
 - [ ] **Phase 04: datspace.ai** - Stateless MCP, the JSON API, llms.txt, the live view, and the answerability suite
 - [ ] **Phase 05: CLI** - `npx datspace` with `ls`, `show`, `search`, `graph`, and `hewitt`
 - [ ] **Phase 06: Launch** - Real content, all domains, production checks, the film, and the application
@@ -68,7 +68,7 @@ See `CONTENT.md` for what each piece of writing needs.
 ### Phase 06: Launch
 **Goal**: Real content, every domain live, final checks on production, the film, and the application sent.
 **Depends on**: Phases 03 to 05
-**Done when**: The launch stations, the about page, and the colophon are published; every check above passes on datspace.io and datspace.ai; the four unlit domains redirect to datspace.io; the film is uploaded; the application links datspace.io, datspace.ai, the repo, and the film.
+**Done when**: The launch stations, the about page, and the colophon are published; every check above passes on datspace.io and datspace.ai; the four unlit domains redirect to datspace.io (done in phase 03); the film is uploaded; the application links datspace.io, datspace.ai, the repo, and the film.
 
 **Film shot list** (60 to 90 seconds, screen recording, no voiceover required):
 1. Static on datspace.io. The dial moves, the static thins, a station locks in color. (about 20 s)
@@ -102,7 +102,7 @@ Never cut: the tuner, the index, station pages, MCP, `npx datspace ls`, and the 
 | --- | --- | --- |
 | 01. Foundation | Complete | 2026-10-22 |
 | 02. The tuner | Complete | 2026-10-22 |
-| 03. datspace.io | Next | - |
-| 04. datspace.ai | Not started | - |
+| 03. datspace.io | Complete | 2026-10-22 |
+| 04. datspace.ai | Next | - |
 | 05. CLI | Not started | - |
 | 06. Launch | Not started | - |
