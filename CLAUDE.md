@@ -1,6 +1,6 @@
 # datspace
 
-A portfolio network: a tuner for people at datspace.io and an actor network for agents at datspace.ai, built on Cloudflare Workers and SQLite-backed Durable Objects. Launch is **October 30, 2026**.
+A portfolio network: a tuner for people at datspace.io and an actor network for agents at datspace.ai, built on Cloudflare Workers and SQLite-backed Durable Objects, with four more bands: datspace.dev (the source and the ledger), datspace.fm (a generative station), datspace.music (a catalog), and datspace.studio (patter, a separate repo). Launch is **October 30, 2026**.
 
 Read these before any work:
 
@@ -12,12 +12,13 @@ Read these before any work:
 ## Layout
 
 ```
-apps/web            SvelteKit 3 site → Worker "datspace-web" (datspace.io, unlit domains, human pages on datspace.ai)
-apps/ai             Worker "datspace-ai": MCP, JSON API, llms.txt, admin routes, and the Ledger and Inbox actors
+apps/web            SvelteKit 3 site → Worker "datspace-web" (datspace.io, and the human pages of every band but studio)
+apps/ai             Worker "datspace-ai": MCP, JSON API, llms.txt, admin routes, /decide, and the Ledger, Inbox, and Budget actors
 apps/cli            TypeScript CLI, published to npm as "datspace" (esbuild bundle, no runtime dependencies)
 packages/contract   Types, zod schemas, tool definitions, Source, API_VERSION (the single source of truth)
 packages/content    Station markdown, schema, loader, content hashes, build to .generated/content.json
 packages/clock      Pure clock math: bars since 1973
+packages/fm         datspace.fm's question bank and decision contract, shared by the page and /decide
 tests/              answerability.yaml and its runner
 
 After launch: workers/actors (Network, Work, and the Ledger and Inbox moved there), scripts/publish.ts, and Cap'n Web RPC.
@@ -41,8 +42,10 @@ Keep this table in sync with `package.json`.
 | Deploy | CI only, on push to `main`: web → ai, then `POST /admin/deploy` |
 | Release the CLI | Bump `apps/cli/package.json`, push tag `cli-v<version>`; CI stages it on npm; Jared approves on npmjs.com with 2FA |
 | Try the CLI locally | `pnpm --filter datspace build && node apps/cli/dist/datspace.js ls` |
+| Recompile datspace.fm's SynthDefs, and check their levels offline | `pnpm --filter @datspace/web synthdefs --check` (needs SuperCollider.app; the output is committed) |
+| Check the studies' and the scope's canvases at 1×, 2×, 3× | `WEB_URL=https://datspace.io pnpm check:render` |
 
-`datspace-web` serves datspace.io. `datspace-ai` serves datspace.ai and redirects datspace.dev, .fm, .music, and .studio to `https://datspace.io/#<band>` (static assets on datspace-web would be served before any redirect code). Repo variables `WEB_URL` and `AI_URL` hold the two origins.
+`datspace-web` serves datspace.io. `datspace-ai` holds the custom domains datspace.ai, .dev, .fm, .music, and .studio: it rewrites `/` on each to that band's page on datspace-web (`/ai`, `/dev`, `/fm`, `/music`), forwards every other human path to datspace-web, and answers `/decide` everywhere but datspace.ai. `apps/web/src/hooks.ts` reroutes client-side navigation the same way. datspace.studio is patter (github.com/discohead/patter), on a Worker route that takes precedence over the custom domain. Repo variables `WEB_URL` and `AI_URL` hold the two origins.
 
 ## SvelteKit 3 notes
 
@@ -53,14 +56,14 @@ Keep this table in sync with `package.json`.
 
 ## Non-negotiables
 
-1. **No inference.** Runtime code never calls a model: no AI SDKs, no Workers AI, no embeddings. Agents bring their own models.
+1. **No inference.** Runtime code never calls a model: no AI SDKs, no Workers AI, no embeddings. Agents bring their own models. One exception, which Jared made on October 29: datspace.fm's `POST /decide` asks Clef Flash, a Workers AI *decision* model, to choose among options defined in `packages/fm`. It writes no text, only ever reads text from the repository, is cached by request hash, rate limited per address, capped daily by the Budget actor, and falls back to a seeded local draw. Nothing agent-facing calls it, and no other model call is allowed.
 2. **An actor owns state or coordinates something.** Otherwise it's a function or a file. Don't add a Durable Object without naming the state it owns.
 3. **Agent-facing output is facts and links only.** Tool descriptions and results never tell an agent what to conclude or do.
 4. **Define once, expose everywhere.** Tools, types, and schemas live in `packages/contract`. MCP, JSON, RPC, and the CLI derive from it. Never redefine a shape inside an app.
 5. **Git is the source of truth for content.** Publishing is a message to actors. Never edit actor state by hand.
 6. **Static where it can be, actors where it's alive.** Pages prerender from `packages/content`. At runtime, only agent queries, the ledger feed, messages, and publishing touch actors.
-7. **1-bit chrome.** True `#000` and `#fff`, one grotesk with a mono sibling and tabular figures. A station's color appears only when it's locked. Threlte only for the tuner, p5.js only for the studies, Tone.js only after a click.
-8. **Accessibility floor.** The dial works by keyboard, `prefers-reduced-motion` gets a still frame, and no WebGL falls back to the index.
+7. **1-bit chrome.** True `#000` and `#fff`, one grotesk with a mono sibling and tabular figures. A station's color appears only when it's locked. Threlte only for the tuner; p5.js only for the studies and datspace.fm's scope; Tone.js only after a click; SuperSonic only on datspace.fm, after a click. No side stripes: callouts and quotes never get a colored or thick rule down one edge.
+8. **Accessibility floor.** The dial works by keyboard, `prefers-reduced-motion` gets a still frame, and no WebGL falls back to the index. Every band page works by keyboard and audits clean with axe.
 9. **Public repo.** Secrets live in Wrangler and GitHub secrets, never in files. Write code, comments, and commit messages for a reader who might hire you.
 
 ## Durable Object code updates
@@ -77,6 +80,7 @@ New code reaches a Durable Object eventually, not at deploy time; on October 22 
 - Log tool arguments, IP addresses, user agents, or message contents to the Ledger.
 - Declare Durable Objects with the legacy `migrations` array. Use the `exports` block.
 - Add a dependency without saying why in the commit message.
+- Ship SuperSonic (AGPL-3.0-or-later) anywhere without a visible link to its source and this repo's.
 
 ## Verify before use
 

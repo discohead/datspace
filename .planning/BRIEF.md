@@ -16,7 +16,7 @@ A reviewer with two minutes. In the first ten seconds they see static resolve in
 - [ ] Every launch station is reachable by keyboard, with reduced motion, and without WebGL.
 - [ ] The answerability suite passes in CI against MCP and JSON, with no model in the loop.
 - [ ] `npx datspace ls` works on a clean machine with no setup.
-- [ ] No runtime code calls a model, so cost scales with requests, not tokens.
+- [ ] Nothing agent-facing calls a model, so cost scales with requests, not tokens. The one exception, datspace.fm's decision model, is cached, rate limited, and capped at about a dollar a day.
 - [ ] The repo is public and installs, typechecks, and tests from a clean clone.
 - [ ] A 60 to 90 second film shows the tuner and an agent querying datspace.ai, linked from the application.
 
@@ -30,13 +30,13 @@ A reviewer with two minutes. In the first ten seconds they see static resolve in
 
 ## Launch scope
 
-Two Workers and two actors. Content is bundled at build. The Ledger owns the hash-chained log of agent calls behind the live view; the Inbox owns messages that agents and people transmit to Jared. Network and Work become actors after launch, when publishing becomes a message; until then they are files, per the actor rule in CLAUDE.md.
+Two Workers and three actors. Content is bundled at build. The Ledger owns the hash-chained log of agent calls behind the live view; the Inbox owns messages that agents and people transmit to Jared; the Budget owns the daily cap on datspace.fm's decision model. Network and Work become actors after launch, when publishing becomes a message; until then they are files, per the actor rule in CLAUDE.md.
 
 ## Out of Scope
 
-- datspace.dev, datspace.fm, datspace.music, and datspace.studio content. These domains redirect to datspace.io until their phase.
+- ~~datspace.dev, datspace.fm, datspace.music, and datspace.studio content.~~ Brought into scope on October 29, after Jared applied to Anthropic Labs with datspace.io linked: see phase 07.
 - Network and Work actors; publish as a message; a web contact form with Turnstile (the tape uses `mailto:`); Cap'n Web RPC. All are the week after launch.
-- Live presence on stations, the generative radio station, and media on R2.
+- Live presence on stations, and media on R2. (The generative station shipped early, as datspace.fm.)
 - Video tools (HyperFrames), effect libraries (Canvas UI, Svelte Bits), and Tailwind.
-- LLM calls, embeddings, and vector search.
+- LLM calls, embeddings, and vector search. (A decision model on datspace.fm, which writes no text, is the one exception; see ARCHITECTURE.)
 - Authentication beyond the deploy token, and analytics beyond the Ledger.

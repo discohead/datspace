@@ -4,23 +4,27 @@ Checked against Cloudflare docs and npm on October 21, 2026. Where a section say
 
 ## At launch (October 30)
 
-Two Workers and two actor classes. Nothing calls a model. This section overrides the rest of the document where they differ; everything else describes the target the week after launch.
+Two Workers and three actor classes, plus patter on its own Worker at datspace.studio. Nothing agent-facing calls a model; the one model call on the network is datspace.fm's decision (below). This section overrides the rest of the document where they differ; everything else describes the target the week after launch.
 
 ```
 Browsers ── datspace-web (datspace.io): prerendered from packages/content
-Agents ──── MCP ──► datspace-ai (datspace.ai) ── LEDGER (Durable Object, same Worker)
+Agents ──── MCP ──► datspace-ai (datspace.ai) ── LEDGER, INBOX, BUDGET (Durable Objects, same Worker)
 CLI ─────── JSON ─► datspace-ai
 CI ──────── /admin/deploy ─► datspace-ai
-datspace-ai ── service binding (human pages) ──► datspace-web
+datspace-ai ── service binding (human pages of datspace.ai, .dev, .fm, .music) ──► datspace-web
+datspace.fm ── POST /decide ─► datspace-ai ── Clef Flash (Workers AI decision model)
+datspace.studio ── patter (separate Worker and repo, github.com/discohead/patter)
 ```
 
 - **Content is bundled.** `pnpm --filter @datspace/content build` validates `stations/*.md`, `profile.json`, and `clock.json` and writes `packages/content/.generated/content.json` (docs, content hashes, and a glyph seed per station, the SHA-256 of its slug). `datspace-web` prerenders from it and `datspace-ai` imports it. Workers never read the filesystem.
-- **Two actors.** `Ledger` (`apps/ai/src/ledger.ts`) owns the hash-chained event log: `deploy`, `agent.call`, and `message.received`. `Inbox` (`apps/ai/src/inbox.ts`) owns messages to Jared and the sending limits: 3 per sender (a salted, daily-rotating hash of the address) per 24 hours, and 30 a day overall. Both are exported from the `datspace-ai` Worker. No `publish` events until the Work actors arrive.
+- **Three actors.** `Ledger` (`apps/ai/src/ledger.ts`) owns the hash-chained event log: `deploy`, `agent.call`, and `message.received`. `Inbox` (`apps/ai/src/inbox.ts`) owns messages to Jared and the sending limits: 3 per sender (a salted, daily-rotating hash of the address) per 24 hours, and 30 a day overall. `Budget` (`apps/ai/src/budget.ts`) owns daily spending counters, one row per budget per UTC day; today it caps datspace.fm's Clef Flash calls at 20,000 a day. All three are exported from the `datspace-ai` Worker. No `publish` events until the Work actors arrive.
 - **A `Source` interface instead of `Actors`.** `packages/contract` defines `Source { stations(), work(slug), search(q, limit), graph(), profile(), ledger(limit) }`, and the tools' `run(source, input)` call only that. At launch `createStaticSource(content, ledger)` answers from the bundle, with search as a simple in-memory match that returns snippets. The week after, an actor-backed `Source` replaces it with no change to any surface.
 - **Seven tools.** All seven in the contract section. `transmit` emails Jared through a `send_email` binding restricted to `transmit@datspace.io`; the destination is the `INBOX_TO` secret, a verified Email Routing address, so sending is free and the address stays out of the repo.
-- **Routes on datspace-ai:** `/mcp`, `/api/*` (minus `ledger/watch`), `/llms.txt`, `/live.json`, `GET /admin/messages`, `GET /admin/version`, and `POST /admin/deploy` (bearer `DEPLOY_TOKEN`, constant-time comparison, body `{ commit }`, appends one `deploy` event). Everything else goes to `WEB`.
-- **`datspace-web` binds nothing.** The `/ai` live view polls `/api/ledger` on its own origin every few seconds. The tape's contact line is a `mailto:` link.
-- **Deploy order:** web, then ai (ai's service binding needs web to exist), then `POST /admin/deploy`.
+- **Routes on datspace-ai:** `/mcp`, `/api/*` (minus `ledger/watch`), `/llms.txt`, `/live.json`, `/ledger.json` (pages backward through the log for datspace.dev; not a tool), `POST /decide` (every host but datspace.ai), `GET /admin/messages`, `GET /admin/version`, and `POST /admin/deploy` (bearer `DEPLOY_TOKEN`, constant-time comparison, body `{ commit }`, appends one `deploy` event). `/` on datspace.ai, .dev, .fm, and .music rewrites to `/ai`, `/dev`, `/fm`, and `/music` on `WEB`; everything else goes to `WEB`.
+- **Bands.** The custom domains datspace.ai, .dev, .fm, .music, and .studio are all attached to `datspace-ai`. datspace.studio's requests go to patter instead, because a Worker route takes precedence over a custom domain; if that route is ever removed, `datspace-ai` redirects datspace.studio to the dial. `apps/web/src/hooks.ts` (`reroute`) maps `/` on each band's domain the same way for client-side navigation.
+- **datspace.fm's decision.** `packages/fm` holds a bank of cryptic questions and the decision contract. The page sends question and answer ids; `/decide` looks up their text and asks `@cf/cloudflare/clef-flash` (about 1,300 input tokens, $0.038 per million, no output tokens) to choose a system, a scale, and five rubric scores. Clef's answer is deterministic, so responses are cached by a hash of the request. Order of checks: cache, then `FM_LIMIT` (20 a minute per address), then `Budget` (20,000 a day), then the model; any refusal or error returns a seeded local draw with the reason. The music itself runs in the page on SuperSonic (scsynth in WebAssembly, AGPL-3.0-or-later), with SynthDefs compiled from `apps/web/src/lib/fm/synthdefs.scd`.
+- **`datspace-web` binds nothing.** The `/ai` live view polls `/live.json` on datspace.ai. The tape's contact line is a `mailto:` link.
+- **Deploy order:** web, then ai (ai's service binding needs web to exist), then `POST /admin/deploy`. patter deploys from its own repo with the `cf` CLI.
 
 ## Target (the week after launch)
 

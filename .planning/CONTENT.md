@@ -33,14 +33,18 @@ Add a case to the YAML whenever a station should answer a new question.
 
 Frequencies sit 3.6 MHz apart so the static fully returns between them. The dial opens at 87.5, so the first station a reviewer finds is `datspace`.
 
-| MHz | Slug | Domain | Due | Notes |
-| --- | --- | --- | --- | --- |
-| 88.7 | `datspace` | datspace.io | Oct 23 | The tuner explains itself. Lead with the Runway-facing idea: the distance from a station is the noise level σ, so tuning is scrubbing a denoising schedule by hand. Then the subtraction principle and the Ikeda, Alva Noto, Fell, Roads lineage. |
-| 92.3 | `agent-native-interface` | datspace.ai | Oct 23 | MCP, the CLI, and the answerability tests as one piece. Must contain `npx datspace` (the answerability suite checks it). The Workbus thesis turned outward: agents get native tools, not tools built for humans. |
-| 95.9 | `actors-all-the-way-down` | datspace.io | Oct 28, cuttable | The essay. Hewitt to Durable Objects, Scheme, agents as actors, closing on WorldPrompt. If it isn't ready, it stays an unlit marker. |
-| 99.5 | `aux` | datspace.io | Oct 25 | Swift CLI and MCP server for Apple MusicKit. Source: github.com/discohead/aux. |
-| 103.1 | `mixpanel-headless` | datspace.io | Oct 25 | `mixpanel_data` and the `mp` CLI. Proof of execution, not the headline; check what you can say publicly. |
-| 106.7 | `1-bit-studies` | datspace.io | Oct 26 | Live with three playable studies (denoising by hand, growing a glyph, threshold). You write the four beats and the body. |
+On October 29 Jared asked Claude to write everything in his voice, from his notes and the Littlebird record; the drafts are in place and his to edit.
+
+| MHz | Slug | Domain | Notes |
+| --- | --- | --- | --- |
+| 88.7 | `datspace` | datspace.io | The tuner explains itself: σ, the subtraction, the lineage. The 1-bit studies play on this page now; `/s/1-bit-studies` redirects here. |
+| 92.3 | `agent-native-interface` | datspace.ai | MCP, the CLI, and the answerability tests. Must contain `npx datspace`. |
+| 95.9 | `mixpanel-headless` | datspace.io | The CLI-first to code-first story, from public facts only. |
+| 99.5 | `aux` | datspace.io | Swift CLI and MCP server for Apple MusicKit. |
+| 103.1 | `patter` | datspace.studio | The natural-language modular synth, in listener mode. |
+| 106.7 | `datspace-fm` | datspace.fm | The generative station and its one decision model. |
+
+Six slots is all the dial holds at this spacing. The essay *Actors all the way down* (Hewitt to Durable Objects, closing on Runway's WorldPrompt) is off the dial until a slot or a page opens up.
 
 ## Pages
 

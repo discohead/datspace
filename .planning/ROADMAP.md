@@ -22,6 +22,7 @@ Ship datspace.io, datspace.ai, and the `datspace` CLI by **October 30, 2026**, t
 - [x] **Phase 04: datspace.ai** - Stateless MCP, the JSON API, llms.txt, the live view, and the answerability suite
 - [x] **Phase 05: CLI** - `npx datspace` with `ls`, `show`, `search`, `graph`, and `hewitt`
 - [ ] **Phase 06: Launch** - Real content, all domains, production checks, the film, and the application
+- [ ] **Phase 07: Bands** - datspace.dev, .fm, .music, and .studio live, and the stations written in full
 
 ## Calendar
 
@@ -77,6 +78,11 @@ See `CONTENT.md` for what each piece of writing needs.
 4. A terminal: Claude Code with datspace.ai's MCP answers "What has Jared built for agents?"; the live view on datspace.ai shows the calls arrive. (about 30 s)
 5. `npx datspace ls`, then the URLs. (about 10 s)
 
+### Phase 07: Bands
+**Goal**: Every domain on the band selector serves something real, and every station has its writing.
+**Depends on**: Phase 06's content structure
+**Done when**: datspace.dev verifies the ledger in the browser and runs the answerability suite against production; datspace.fm plays a station chosen by Clef Flash from the vibe check, with the cache, rate limit, budget, and local fallback tested; datspace.music's sleeves play their own artwork; datspace.studio serves patter in listener mode, with prompting still behind Access; the six stations, about, colophon, and profile are written; and check:a11y, check:render, and the answerability suite pass in production.
+
 ## Cut line
 
 If the schedule slips, cut in this order: Tone.js sound, the `1-bit-studies` station, the essay *Actors all the way down*, the live view on datspace.ai, CLI `search` and `graph`, the tape.
@@ -91,10 +97,9 @@ Never cut: the tuner, the index, station pages, MCP, `npx datspace ls`, and the 
 
 ## After that
 
-- datspace.dev: the source, architecture notes, and the full ledger
-- datspace.fm: the generative station on Tone.js, in time with the clock
+- ~~datspace.dev, datspace.fm, datspace.music, and datspace.studio~~: done early, in phase 07
 - Live presence on stations, and R2 for media
-- datspace.music and datspace.studio
+- datspace.music's real catalog, when there are records to press
 
 ## Progress
 
@@ -105,4 +110,5 @@ Never cut: the tuner, the index, station pages, MCP, `npx datspace ls`, and the 
 | 03. datspace.io | Complete | 2026-10-22 |
 | 04. datspace.ai | Complete | 2026-10-22 |
 | 05. CLI | Complete | 2026-10-22 |
-| 06. Launch | Next | - |
+| 06. Launch | In progress | - |
+| 07. Bands | In progress | - |
