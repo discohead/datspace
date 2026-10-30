@@ -12,8 +12,8 @@ import { sine } from "./crvs.ts";
 export interface ScopeState {
   left: AnalyserNode | null;
   right: AnalyserNode | null;
-  /** The figure drawn when nothing is playing: a point on a closed curve for u in [0, 1), turning with t seconds. */
-  figure: ((u: number, t: number) => [number, number]) | null;
+  /** The figure drawn when nothing is playing: writes the point on a closed curve at u in [0, 1), turning with t seconds, into `out`. */
+  figure: ((u: number, t: number, out: [number, number]) => void) | null;
   /** The decision's σ, drawn as static. 1 before anything is decided. */
   sigma: number;
   /** The beam's color, 0–1: white, or the station's hue once it locks. */
@@ -28,9 +28,12 @@ export function scope(state: ScopeState, size: number, animate: boolean) {
     const age = new Uint8Array(size * size);
     const left = new Float32Array(2048);
     const right = new Float32Array(2048);
+    // The figure writes each point here: 1,600 new pairs a frame is garbage a phone pauses to collect.
+    const point: [number, number] = [0, 0];
     let context: CanvasRenderingContext2D;
     let image: ImageData;
     let gain = 1;
+    let start = 0;
 
     const hit = (x: number, y: number) => {
       const px = Math.round((x * 0.47 + 0.5) * (size - 1));
@@ -45,30 +48,35 @@ export function scope(state: ScopeState, size: number, animate: boolean) {
       p.frameRate(60);
       context = p.drawingContext as CanvasRenderingContext2D;
       image = context.createImageData(size, size);
+      start = performance.now();
       if (!animate) p.noLoop();
     };
 
     p.draw = () => {
       for (let i = 0; i < age.length; i++) if (age[i]! > 0) age[i]!--;
 
-      if (state.left && state.right) {
-        state.left.getFloatTimeDomainData(left);
-        state.right.getFloatTimeDomainData(right);
+      // The state is reactive, and every read goes through Svelte; read each field once a frame.
+      const { left: leftNode, right: rightNode, figure, sigma, ink } = state;
+      if (leftNode && rightNode) {
+        leftNode.getFloatTimeDomainData(left);
+        rightNode.getFloatTimeDomainData(right);
         let peak = 0;
         for (let i = 0; i < left.length; i++) peak = Math.max(peak, Math.abs(left[i]!), Math.abs(right[i]!));
         // Auto-range, slowly, so a quiet passage still fills the screen.
         if (peak > 0.002) gain += (1 / peak - gain) * 0.06;
         for (let i = 0; i < left.length; i++) hit(left[i]! * gain, right[i]! * gain);
-      } else if (state.figure) {
-        const t = animate ? p.millis() / 1000 : 0;
+      } else if (figure) {
+        const t = animate ? (performance.now() - start) / 1000 : 0;
         for (let i = 0; i < FIGURE_POINTS; i++) {
-          const [x, y] = state.figure(i / FIGURE_POINTS, t);
-          hit(x, y);
+          figure(i / FIGURE_POINTS, t, point);
+          hit(point[0], point[1]);
         }
       }
 
-      const [r, g, b] = state.ink.map((c) => Math.round(c * 255)) as [number, number, number];
-      const staticRate = state.sigma * 0.035;
+      const r = Math.round(ink[0] * 255);
+      const g = Math.round(ink[1] * 255);
+      const b = Math.round(ink[2] * 255);
+      const staticRate = sigma * 0.035;
       const data = image.data;
       for (let i = 0; i < age.length; i++) {
         const a = age[i]!;
@@ -96,14 +104,15 @@ export function scope(state: ScopeState, size: number, animate: boolean) {
  * and seen from the front. Feedback bends each sine toward a saw, as Curves'
  * sine op does.
  */
-export function knot(a: number, b: number, c: number, feedback: number, turn = 0.05): (u: number, t: number) => [number, number] {
+export function knot(a: number, b: number, c: number, feedback: number, turn = 0.05): NonNullable<ScopeState["figure"]> {
   const x = sine(feedback, { rate: a });
   const y = sine(feedback, { rate: b, phase: 0.25 });
   const z = sine(feedback, { rate: c, phase: 0.125 });
-  return (u, t) => {
+  return (u, t, out) => {
     const angle = t * turn * 2 * Math.PI;
     const px = x(u) * 2 - 1;
     const pz = z(u) * 2 - 1;
-    return [px * Math.cos(angle) + pz * Math.sin(angle), y(u) * 2 - 1];
+    out[0] = px * Math.cos(angle) + pz * Math.sin(angle);
+    out[1] = y(u) * 2 - 1;
   };
 }
