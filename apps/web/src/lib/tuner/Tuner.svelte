@@ -499,14 +499,22 @@
     margin: 0;
   }
 
+  /*
+   * Room for the tallest a locked station gets: its title, a summary of up to two lines, and the hint.
+   * The panel is anchored to the bottom, so anything taller pushes the readouts up when a station locks.
+   */
   .station {
-    min-height: 5.5rem;
+    --title-size: clamp(1.4rem, 2.6vw, 2rem);
+    min-height: calc(var(--title-size) * 1.2 + 0.5rem + 3 * 1.5rem);
     margin: 1rem 0 1.25rem;
     max-width: 40rem;
   }
 
   .title {
-    font-size: clamp(1.4rem, 2.6vw, 2rem);
+    display: block;
+    width: fit-content;
+    font-size: var(--title-size);
+    line-height: 1.2;
     font-weight: 600;
     letter-spacing: -0.015em;
   }
@@ -580,6 +588,11 @@
   @media (max-width: 40rem) {
     .label.minor {
       display: none;
+    }
+
+    /* A summary can run to three lines here. */
+    .station {
+      min-height: calc(var(--title-size) * 1.2 + 0.5rem + 4 * 1.5rem);
     }
   }
 
