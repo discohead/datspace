@@ -16,6 +16,7 @@
   } from "@datspace/fm";
   import { onMount } from "svelte";
   import { prefersReducedMotion } from "svelte/motion";
+  import { replaceState } from "$app/navigation";
   import type { Broadcast } from "#lib/fm/engine.ts";
   import Scope from "#lib/fm/Scope.svelte";
   import { knot, type ScopeState } from "#lib/fm/scope.ts";
@@ -129,7 +130,7 @@
     }
     decided = result;
     deciding = false;
-    history.replaceState(history.state, "", `#${fragment(list)}`);
+    replaceState(`#${fragment(list)}`, {});
     tuneScope(result);
     if (broadcast) {
       current = next(result);
@@ -258,7 +259,7 @@
 
   <section class="receiver" aria-label="Receiver">
     <div class="screen">
-      <Scope state={scopeState} animate={!prefersReducedMotion.current} />
+      <Scope signal={scopeState} animate={!prefersReducedMotion.current} />
       <p class="caption">
         {#if playing}
           The scope is the sound before the room: the left channel moves the beam across, the right moves it up.

@@ -1,21 +1,30 @@
 <script lang="ts">
+  import type p5 from "p5";
   import { P5Canvas } from "svelte-p5";
   import { scope, type ScopeState } from "./scope.ts";
 
   interface Props {
-    state: ScopeState;
+    /** What the scope draws; the sketch reads it on every frame. */
+    signal: ScopeState;
     animate: boolean;
   }
 
-  let { state, animate }: Props = $props();
+  let { signal, animate }: Props = $props();
   const SIZE = 192;
-  // The sketch reads `state` on every frame; it's built once and never rebuilt.
+  // The sketch is built once and never rebuilt.
   // svelte-ignore state_referenced_locally
-  const sketch = scope(state, SIZE, animate);
+  const sketch = scope(signal, SIZE, animate);
+  let instance = $state<p5 | null>(null);
+
+  // A still frame (reduced motion) is redrawn when the station changes, not every frame.
+  $effect(() => {
+    void [signal.figure, signal.sigma, signal.ink, signal.left];
+    if (!animate) instance?.redraw();
+  });
 </script>
 
 <div class="scope" aria-hidden="true">
-  <P5Canvas {sketch} style="display: block; width: 100%;" />
+  <P5Canvas {sketch} bind:instance style="display: block; width: 100%;" />
 </div>
 
 <style>
