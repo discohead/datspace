@@ -214,8 +214,13 @@
     }).length;
   });
 
+  // Read the dial before touching `sound`: it isn't reactive, and `sound?.update(...)` with no sound yet
+  // would skip its arguments, leaving this effect with nothing to track, so it would never run again.
   $effect(() => {
-    sound?.update(frequency, sigma, nearest?.index ?? null);
+    const at = frequency;
+    const noise = sigma;
+    const index = nearest?.index ?? null;
+    sound?.update(at, noise, index);
   });
 
   async function toggleSound() {
