@@ -387,12 +387,16 @@
     padding: 0.35rem 0.6rem;
   }
 
+  /* Above the panel, so on a screen too short for both the links are what stays reachable. */
   .top {
     position: absolute;
+    z-index: 1;
     inset: 1rem 1rem auto;
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: start;
+    gap: 0.5rem 0;
     cursor: auto;
   }
 
@@ -623,6 +627,87 @@
     /* A summary can run to three lines here. */
     .station {
       min-height: calc(var(--title-size) * 1.2 + 0.5rem + 4 * 1.5rem);
+    }
+  }
+
+  /*
+   * A phone on its side has a few hundred pixels of height, and the full panel would cover the header and the glyph.
+   * The type comes down, and a locked station keeps to its title and one line of summary.
+   */
+  @media (max-height: 32rem) {
+    /* Tighter, so the header stays one row on most phones turned sideways. */
+    .top {
+      inset-inline: 0.75rem;
+    }
+
+    .plate {
+      padding-inline: 0.4rem;
+    }
+
+    .masthead {
+      gap: 0.6rem;
+    }
+
+    nav {
+      gap: 0.8rem;
+    }
+
+    .panel {
+      padding-top: 0.5rem;
+      padding-bottom: 0.75rem;
+    }
+
+    .frequency {
+      font-size: clamp(2.25rem, min(16vh, 9vw), 5rem);
+    }
+
+    .panel .meters {
+      gap: 0;
+      font-size: 0.8rem;
+      line-height: 1.3;
+    }
+
+    .station {
+      --title-size: 1.25rem;
+      min-height: calc(var(--title-size) * 1.2 + 0.25rem + 1.35rem);
+      margin: 0.4rem 0 0.6rem;
+    }
+
+    .title,
+    .summary {
+      max-width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .summary,
+    .hint {
+      font-size: 0.9rem;
+    }
+
+    /* The title is plainly a link. The hint stays for a first visit, before anything locks. */
+    .title ~ .hint {
+      display: none;
+    }
+  }
+
+  /* Wide enough, the station sits beside the readouts instead of under them. */
+  @media (max-height: 32rem) and (min-width: 34rem) {
+    .panel {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      column-gap: clamp(1rem, 4vw, 3rem);
+      align-items: end;
+    }
+
+    .station {
+      margin: 0 0 0.4rem;
+    }
+
+    .scale {
+      grid-column: 1 / -1;
+      margin-top: 0.6rem;
     }
   }
 
