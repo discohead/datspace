@@ -80,7 +80,9 @@ export async function handleDecide(
   // Clef's answer is a pure function of the request, so a cached one is exact. The key covers the
   // whole request, so rewording a criterion in @datspace/fm asks again instead of serving the old answer.
   const input = clefRequest(answers);
-  const cacheKey = new Request(`https://datspace.fm/decide/${await sha256Hex(`${CLEF_MODEL}|${JSON.stringify(input)}`)}`);
+  // The Cache API stores keys only for the zone the request came in on, so the key uses its origin.
+  const digest = await sha256Hex(`${CLEF_MODEL}|${JSON.stringify(input)}`);
+  const cacheKey = new Request(new URL(`/decide/${digest}`, request.url));
   const hit = await caches.default.match(cacheKey);
   if (hit) return respond(await hit.json<Stored>(), true);
 
