@@ -1,6 +1,6 @@
 <script lang="ts">
   import type p5 from "p5";
-  import { P5Canvas } from "svelte-p5";
+  import Sketch from "../site/Sketch.svelte";
   import { scope, type ScopeState } from "./scope.ts";
 
   interface Props {
@@ -24,7 +24,7 @@
 </script>
 
 <div class="scope" aria-hidden="true">
-  <P5Canvas {sketch} bind:instance style="display: block; width: 100%;" />
+  <Sketch {sketch} {animate} bind:instance />
 </div>
 
 <style>

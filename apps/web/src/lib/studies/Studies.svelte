@@ -48,7 +48,7 @@
 <section class="studies" aria-labelledby="studies">
   <h2 id="studies">Studies</h2>
 
-  <Study title="Denoising by hand" sketch={denoiseSketch} redrawKey={denoiseState.sigma}>
+  <Study title="Denoising by hand" sketch={denoiseSketch} {animate} redrawKey={denoiseState.sigma}>
     {#snippet description()}
       <p>
         The tuner's rule on {first.title}'s glyph: a pixel is on when s·(1 − σ) + n·1.6·σ &gt; 0, where s is the glyph
@@ -62,7 +62,7 @@
     {/snippet}
   </Study>
 
-  <Study title="Growing a glyph" sketch={growSketch} redrawKey={growState.steps}>
+  <Study title="Growing a glyph" sketch={growSketch} animate={false} redrawKey={growState.steps}>
     {#snippet description()}
       <p>
         Left to right, for {growing}: a seeded random field mirrored down the middle, then two passes of one rule. A
@@ -75,7 +75,7 @@
     {/snippet}
   </Study>
 
-  <Study title="Threshold" sketch={thresholdSketch} redrawKey={thresholdState.noise}>
+  <Study title="Threshold" sketch={thresholdSketch} {animate} redrawKey={thresholdState.noise}>
     {#snippet description()}
       <p>
         A ramp from black to white through one bit. Without noise the threshold cuts it in half; with noise, the ramp

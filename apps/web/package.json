@@ -26,7 +26,6 @@
     "p5": "2.3.4",
     "supersonic-scsynth": "0.91.0",
     "supersonic-scsynth-core": "0.91.0",
-    "svelte-p5": "1.0.0",
     "three": "^0.186.1",
     "tone": "^15.1.22"
   },

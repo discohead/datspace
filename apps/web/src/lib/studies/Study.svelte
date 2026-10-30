@@ -1,18 +1,20 @@
 <script lang="ts">
   import type p5 from "p5";
   import type { Snippet } from "svelte";
-  import { P5Canvas } from "svelte-p5";
+  import Sketch from "../site/Sketch.svelte";
 
   interface Props {
     title: string;
     sketch: (p: p5) => void;
+    /** Whether the sketch loops. */
+    animate: boolean;
     /** Changes to this value redraw a sketch that isn't looping. */
     redrawKey: unknown;
     description: Snippet;
     controls?: Snippet;
   }
 
-  let { title, sketch, redrawKey, description, controls }: Props = $props();
+  let { title, sketch, animate, redrawKey, description, controls }: Props = $props();
   let instance = $state<p5 | null>(null);
 
   $effect(() => {
@@ -23,7 +25,7 @@
 
 <figure class="study">
   <div class="canvas" aria-hidden="true">
-    <P5Canvas {sketch} bind:instance style="display: block; width: 100%;" />
+    <Sketch {sketch} {animate} bind:instance />
   </div>
   <figcaption>
     <h3>{title}</h3>

@@ -105,9 +105,6 @@ importers:
       supersonic-scsynth-core:
         specifier: 0.91.0
         version: 0.91.0
-      svelte-p5:
-        specifier: 1.0.0
-        version: 1.0.0(p5@2.3.4)(svelte@5.57.2)
       three:
         specifier: ^0.186.1
         version: 0.186.1
@@ -1817,12 +1814,6 @@ packages:
       svelte: ^4.0.0 || ^5.0.0-next.0
       typescript: ^5.0.0 || ^6.0.0
 
-  svelte-p5@1.0.0:
-    resolution: {integrity: sha512-E7pVsFAuaPDblZCpKqTI0NJ5NFaGunklyQ74FUdloPK1lcYgVE4uyQDrNNTF56DUhlsJstI5LOZXK2HS4zJ6rA==}
-    peerDependencies:
-      p5: '>=1.11.0 <3'
-      svelte: ^5.0.0
-
   svelte@5.57.2:
     resolution: {integrity: sha512-1YiPCAXT0Ct6g1vOMmSLa0Nsc3QRMvtDF32ihgglGVrugIuIK38RyDiFNXVDhtQ81TJjSO57NdMw6DyYLqSGDQ==}
     engines: {node: '>=18'}
@@ -3520,11 +3511,6 @@ snapshots:
       typescript: 6.0.3
     transitivePeerDependencies:
       - picomatch
-
-  svelte-p5@1.0.0(p5@2.3.4)(svelte@5.57.2):
-    dependencies:
-      p5: 2.3.4
-      svelte: 5.57.2
 
   svelte@5.57.2:
     dependencies:

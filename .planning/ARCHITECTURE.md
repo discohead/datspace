@@ -52,8 +52,7 @@ Current releases on npm as of October 21, 2026. Pin `capnweb` and `@modelcontext
 | `wrangler` | 4.151.3 | |
 | `@threlte/core` | 8.6.1 | Peers: `three` >= 0.172, `svelte` >= 5 |
 | `three` | 0.186.1 | |
-| `p5` | 2.3.4 | Mounted through `svelte-p5` |
-| `svelte-p5` | 1.0.0 | Core package only (`<P5Canvas>`, `createP5Bridge`); peers `p5` >=1.11 <3 and `svelte` ^5; MIT. Pin exactly: one maintainer, small user base. Skip `svelte-p5-components`, which depends on a prerelease drag library |
+| `p5` | 2.3.4 | The core build (`p5/core`) plus its accessibility addon, mounted by `src/lib/site/Sketch.svelte`. Not the full build, which validates every call's arguments and puts non-passive pointer, wheel, and key listeners on the window |
 | `tone` | 15.1.22 | |
 | `agents` | 0.29.0 | Requires `@modelcontextprotocol/server` 2.3.1 and `zod` ^4 |
 | `@modelcontextprotocol/server` | 2.3.1 | Pin exactly |
@@ -74,7 +73,7 @@ datspace/
 │   ├── web/                    SvelteKit 3 → datspace-web
 │   │   ├── src/routes/         /, /index, /s/[slug], /about, /colophon, /tape, /ai
 │   │   ├── src/lib/tuner/      Threlte scene, shader, dial, sound
-│   │   ├── src/lib/studies/    p5.js sketches, mounted with svelte-p5
+│   │   ├── src/lib/studies/    p5.js sketches, mounted with Sketch.svelte
 │   │   └── wrangler.jsonc
 │   ├── ai/                     datspace-ai
 │   │   ├── src/index.ts        router: /mcp, /api, /llms.txt, /admin; else WEB
@@ -319,8 +318,8 @@ These numbers match the interactive sketch from the concept discussion.
 
 ### Studies
 
-- Mount each sketch with `<P5Canvas {sketch} />` from `svelte-p5`. It runs p5 in instance mode and calls `remove()` on unmount, so navigating between station pages doesn't leave draw loops running.
-- Use `createP5Bridge` only when a sketch must share state with Svelte UI; most studies don't need it.
+- Mount each sketch with `<Sketch {sketch} {animate} />` from `src/lib/site/Sketch.svelte`. It loads p5's core build, runs the sketch in instance mode, and calls `remove()` on unmount, so navigating between station pages doesn't leave draw loops running. A looping sketch draws only while it's on screen.
+- The core build has no p5 math or input: use `Math.random()` and `performance.now()`, and read a sketch's Svelte state once a frame, outside its pixel loops.
 - Keep pixels 1-bit and crisp: `p.pixelDensity(1)` in setup, then scale the canvas with CSS `image-rendering: pixelated`.
 - Lazy-load p5 on study pages only, and pause with `noLoop()` under `prefers-reduced-motion`.
 

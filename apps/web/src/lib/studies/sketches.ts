@@ -54,7 +54,7 @@ export function denoise(state: DenoiseState, glyph: Uint8Array, n: number, anima
           const gy = Math.floor((y - margin) / scale);
           const inside = gx >= 0 && gy >= 0 && gx < n && gy < n;
           const s = inside && glyph[gy * n + gx] ? 1 : -1;
-          buffer.plot(x, y, s * (1 - sigma) + p.random(-1, 1) * 1.6 * sigma > 0);
+          buffer.plot(x, y, s * (1 - sigma) + (Math.random() * 2 - 1) * 1.6 * sigma > 0);
         }
       }
       buffer.show();
@@ -111,9 +111,10 @@ export function threshold(state: ThresholdState, animate: boolean) {
       if (!animate) p.noLoop();
     };
     p.draw = () => {
+      const noise = state.noise;
       for (let y = 0; y < h; y++) {
         for (let x = 0; x < w; x++) {
-          buffer.plot(x, y, x / (w - 1) + p.random(-0.5, 0.5) * state.noise > 0.5);
+          buffer.plot(x, y, x / (w - 1) + (Math.random() - 0.5) * noise > 0.5);
         }
       }
       buffer.show();
