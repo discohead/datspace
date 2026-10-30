@@ -37,3 +37,15 @@ export function toolRequest(
   if (tool === "transmit") return { method: "POST", path: toolPath(tool), body: JSON.stringify(input) };
   return { method: "GET", path: toolPath(tool, input) };
 }
+
+/** Every JSON endpoint, as llms.txt lists them and the API's "not found" error suggests them. */
+export const API_ENDPOINTS = [
+  "/api/stations",
+  "/api/work/<slug>",
+  "/api/work/<slug>.md",
+  "/api/search?q=<query>&limit=<1-20>",
+  "/api/graph",
+  "/api/profile",
+  "/api/ledger?limit=<1-100>&type=<deploy|agent.call>",
+  "POST /api/transmit with JSON { name?, reply_to, body }",
+];

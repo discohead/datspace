@@ -15,7 +15,7 @@ Read these before any work:
 apps/web            SvelteKit 3 site → Worker "datspace-web" (datspace.io, and the human pages of every band but studio)
 apps/ai             Worker "datspace-ai": MCP, JSON API, llms.txt, admin routes, /decide, and the Ledger, Inbox, and Budget actors
 apps/cli            TypeScript CLI, published to npm as "datspace" (esbuild bundle, no runtime dependencies)
-packages/contract   Types, zod schemas, tool definitions, Source, API_VERSION (the single source of truth)
+packages/contract   Types, zod schemas, tool definitions, Source, API_VERSION, llms.txt (the single source of truth)
 packages/content    Station markdown, schema, loader, content hashes, build to .generated/content.json
 packages/clock      Pure clock math: bars since 1973
 packages/fm         datspace.fm's question bank and decision contract, shared by the page and /decide
@@ -45,7 +45,7 @@ Keep this table in sync with `package.json`.
 | Recompile datspace.fm's SynthDefs, and check their levels offline | `pnpm --filter @datspace/web synthdefs --check` (needs SuperCollider.app; the output is committed) |
 | Check the studies' and the scope's canvases at 1×, 2×, 3× | `WEB_URL=https://datspace.io pnpm check:render` |
 
-`datspace-web` serves datspace.io. `datspace-ai` holds the custom domains datspace.ai, .dev, .fm, .music, and .studio: it rewrites `/` on each to that band's page on datspace-web (`/ai`, `/dev`, `/fm`, `/music`), forwards every other human path to datspace-web, and answers `/decide` everywhere but datspace.ai. `apps/web/src/hooks.ts` reroutes client-side navigation the same way. datspace.studio is patter (github.com/discohead/patter), on a Worker route that takes precedence over the custom domain. Repo variables `WEB_URL` and `AI_URL` hold the two origins.
+`datspace-web` serves datspace.io, including a prerendered copy of datspace.ai's llms.txt. `datspace-ai` holds the custom domains datspace.ai, .dev, .fm, .music, and .studio: it rewrites `/` on each to that band's page on datspace-web (`/ai`, `/dev`, `/fm`, `/music`), forwards every other human path to datspace-web, and answers `/decide` everywhere but datspace.ai. `apps/web/src/hooks.ts` reroutes client-side navigation the same way. datspace.studio is patter (github.com/discohead/patter), on a Worker route that takes precedence over the custom domain. Repo variables `WEB_URL` and `AI_URL` hold the two origins.
 
 ## SvelteKit 3 notes
 

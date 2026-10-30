@@ -1,4 +1,4 @@
-import { callTool, workToMarkdown, type ToolName, type Work } from "@datspace/contract";
+import { API_ENDPOINTS, callTool, workToMarkdown, type ToolName, type Work } from "@datspace/contract";
 import { source } from "./env.ts";
 import { deliver } from "./transmit.ts";
 import { json, jsonError } from "./http.ts";
@@ -45,17 +45,6 @@ const ROUTES: Route[] = [
     input: (url) => ({ ...limit(url), ...(url.searchParams.has("type") ? { type: url.searchParams.get("type") } : {}) }),
     cache: "no-store",
   },
-];
-
-export const API_ENDPOINTS = [
-  "/api/stations",
-  "/api/work/<slug>",
-  "/api/work/<slug>.md",
-  "/api/search?q=<query>&limit=<1-20>",
-  "/api/graph",
-  "/api/profile",
-  "/api/ledger?limit=<1-100>&type=<deploy|agent.call>",
-  "POST /api/transmit with JSON { name?, reply_to, body }",
 ];
 
 export async function handleApi(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {

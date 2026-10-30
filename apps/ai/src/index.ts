@@ -1,9 +1,9 @@
+import { llmsTxt } from "@datspace/contract";
 import { handleAdmin } from "./admin.ts";
 import { handleApi } from "./api.ts";
 import { handleDecide } from "./decide.ts";
 import { content, ledger } from "./env.ts";
 import { json, jsonError } from "./http.ts";
-import { llmsTxt } from "./llms.ts";
 import { handleMcp } from "./mcp.ts";
 
 export { Budget } from "./budget.ts";

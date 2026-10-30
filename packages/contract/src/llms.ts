@@ -1,7 +1,12 @@
-import { API_VERSION, type ContentBundle } from "@datspace/contract";
-import { API_ENDPOINTS } from "./api.ts";
+import { API_ENDPOINTS } from "./paths.ts";
+import type { ContentBundle } from "./schemas.ts";
+import { API_VERSION } from "./version.ts";
 
-/** llms.txt for any agent that can fetch a URL: facts and links, no instructions. */
+/**
+ * llms.txt for any agent that can fetch a URL: facts and links, no instructions. `origin` is where the
+ * surfaces it lists answer. datspace-ai serves it on the bands it answers for, and datspace-web
+ * prerenders the same file for datspace.io.
+ */
 export function llmsTxt(content: ContentBundle, origin: string): string {
   const stations = content.stations
     .filter((s) => s.status === "live")

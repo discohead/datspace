@@ -1,6 +1,4 @@
-/** Dated, not semver: bumped when a response shape changes. Included in every JSON response. */
-export const API_VERSION = "2026-10-30";
-
+export * from "./version.ts";
 export * from "./schemas.ts";
 export * from "./errors.ts";
 export * from "./hash.ts";
@@ -8,3 +6,4 @@ export * from "./source.ts";
 export * from "./tools.ts";
 export * from "./markdown.ts";
 export * from "./paths.ts";
+export * from "./llms.ts";
