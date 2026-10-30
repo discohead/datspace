@@ -1,0 +1,4 @@
+# Static .txt files go out as "text/plain" with no charset. llms.txt is UTF-8, as datspace-ai declares for its copy.
+/llms.txt
+  ! Content-Type
+  Content-Type: text/plain; charset=utf-8
