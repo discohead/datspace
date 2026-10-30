@@ -103,9 +103,17 @@
     cursor: pointer;
   }
 
-  button:hover {
+  button:active {
     background: var(--ink);
     color: var(--paper);
+  }
+
+  /* Only where a pointer can hover: a phone keeps :hover on the last button tapped, so it would stay inverted. */
+  @media (hover: hover) {
+    button:hover {
+      background: var(--ink);
+      color: var(--paper);
+    }
   }
 
   button[aria-disabled="true"] {

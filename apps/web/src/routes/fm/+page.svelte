@@ -474,10 +474,20 @@
     cursor: pointer;
   }
 
-  button:hover,
   button:active {
     background: var(--ink);
     color: var(--paper);
+  }
+
+  /*
+   * Only where a pointer can hover: a phone keeps :hover on the last thing tapped, so the next question's answer, in
+   * the same place, would look chosen.
+   */
+  @media (hover: hover) {
+    button:hover {
+      background: var(--ink);
+      color: var(--paper);
+    }
   }
 
   button:disabled {
@@ -492,7 +502,8 @@
     text-underline-offset: 0.2em;
   }
 
-  button.link:hover {
+  button.link:hover,
+  button.link:active {
     background: none;
     color: var(--ink);
   }

@@ -260,9 +260,17 @@
     white-space: nowrap;
   }
 
-  button:hover:not(:disabled) {
+  button:active:not(:disabled) {
     background: var(--ink);
     color: var(--paper);
+  }
+
+  /* Only where a pointer can hover: a phone keeps :hover on the last button tapped, so it would stay inverted. */
+  @media (hover: hover) {
+    button:hover:not(:disabled) {
+      background: var(--ink);
+      color: var(--paper);
+    }
   }
 
   button:disabled {
