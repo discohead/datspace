@@ -22,7 +22,7 @@ Ship datspace.io, datspace.ai, and the `datspace` CLI by **October 30, 2026**, t
 - [x] **Phase 04: datspace.ai** - Stateless MCP, the JSON API, llms.txt, the live view, and the answerability suite
 - [x] **Phase 05: CLI** - `npx datspace` with `ls`, `show`, `search`, `graph`, and `hewitt`
 - [ ] **Phase 06: Launch** - Real content, all domains, production checks, the film, and the application
-- [ ] **Phase 07: Bands** - datspace.dev, .fm, .music, and .studio live, and the stations written in full
+- [x] **Phase 07: Bands** - datspace.dev, .fm, .music, and .studio live, and the stations written in full
 
 ## Calendar
 
@@ -111,4 +111,4 @@ Never cut: the tuner, the index, station pages, MCP, `npx datspace ls`, and the 
 | 04. datspace.ai | Complete | 2026-10-22 |
 | 05. CLI | Complete | 2026-10-22 |
 | 06. Launch | In progress | - |
-| 07. Bands | In progress | - |
+| 07. Bands | Complete | 2026-10-30 |
