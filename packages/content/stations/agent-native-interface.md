@@ -34,7 +34,7 @@ Each tool is defined once, in `packages/contract`: a name, one sentence of descr
 
 Agents read differently from people. They don't need persuading and they're easy to steer, so every description is one sentence of fact, and every result is facts and links, never a conclusion. Errors say how to fix the call. Nothing on this side calls a model.
 
-This is the idea behind Workbus, a project of mine from earlier this year, turned outward: instead of putting agents behind tools built for people, give them their own. I'd already seen it at work. Building [Mixpanel Headless](/s/mixpanel-headless), I preferred a CLI to MCP, and then watched the agent prefer code to both.
+This is the idea behind Workbus, a project of mine from earlier this year, turned outward: instead of putting agents behind tools built for people, give them their own. I'd already seen it at work. Building [Mixpanel Headless](https://datspace.io/s/mixpanel-headless), I preferred a CLI to MCP, and then watched the agent prefer code to both.
 
 ## Answerability
 
