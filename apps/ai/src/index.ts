@@ -62,7 +62,9 @@ export default {
     if (url.pathname.startsWith("/api/")) return handleApi(request, env, ctx);
     if (url.pathname.startsWith("/admin/")) return handleAdmin(request, env);
     if (url.pathname === "/llms.txt") {
-      return new Response(llmsTxt(content, url.origin), {
+      // MCP answers only on datspace.ai, so every band's copy names datspace.ai's surfaces.
+      const origin = FRONT_PAGES[url.hostname] ? "https://datspace.ai" : url.origin;
+      return new Response(llmsTxt(content, origin), {
         headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "public, max-age=300" },
       });
     }

@@ -109,6 +109,16 @@ describe("datspace-ai", () => {
     expect(text).toContain("https://datspace.ai/api/work/agent-native-interface.md");
     expect(text).toContain("npx datspace ls");
   });
+
+  it("names datspace.ai's surfaces in every band's llms.txt, since MCP answers only there", async () => {
+    for (const host of ["datspace.dev", "datspace.fm", "datspace.music"]) {
+      const text = await (await exports.default.fetch(`https://${host}/llms.txt`)).text();
+      expect(text).toContain("https://datspace.ai/mcp");
+      expect(text).toContain("https://datspace.ai/api/stations");
+      expect(text).not.toContain(`${host}/mcp`);
+      expect(text).not.toContain(`${host}/api/`);
+    }
+  });
 });
 
 describe("unlit domains", () => {
