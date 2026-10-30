@@ -8,20 +8,24 @@
     "#lib/*": "./src/lib/*"
   },
   "scripts": {
-    "dev": "svelte-kit sync && vite dev",
-    "build": "svelte-kit sync && vite build",
+    "dev": "node scripts/copy-supersonic.ts && svelte-kit sync && vite dev",
+    "build": "node scripts/copy-supersonic.ts && svelte-kit sync && vite build",
     "preview": "pnpm build && wrangler dev",
     "deploy": "wrangler deploy",
     "typecheck": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --fail-on-warnings",
-    "test": "vitest run"
+    "test": "vitest run",
+    "synthdefs": "node --disable-warning=ExperimentalWarning scripts/synthdefs.ts"
   },
   "dependencies": {
     "@datspace/clock": "workspace:*",
     "@datspace/content": "workspace:*",
     "@datspace/contract": "workspace:*",
+    "@datspace/fm": "workspace:*",
     "@threlte/core": "^8.6.1",
     "marked": "^18.1.1",
     "p5": "2.3.4",
+    "supersonic-scsynth": "0.91.0",
+    "supersonic-scsynth-core": "0.91.0",
     "svelte-p5": "1.0.0",
     "three": "^0.186.1",
     "tone": "^15.1.22"

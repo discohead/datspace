@@ -1,18 +1,22 @@
-/** The six bands on the receiver. Unlit bands are on the dial but not live yet. */
+/**
+ * The six bands on the receiver, one per domain. datspace.studio is served by
+ * patter's own Worker; every other band's front page is a route on this site.
+ */
 export const BANDS = [
   { band: "io", domain: "datspace.io", live: true },
   { band: "ai", domain: "datspace.ai", live: true },
-  { band: "dev", domain: "datspace.dev", live: false },
-  { band: "fm", domain: "datspace.fm", live: false },
-  { band: "music", domain: "datspace.music", live: false },
-  { band: "studio", domain: "datspace.studio", live: false },
+  { band: "dev", domain: "datspace.dev", live: true },
+  { band: "fm", domain: "datspace.fm", live: true },
+  { band: "music", domain: "datspace.music", live: true },
+  { band: "studio", domain: "datspace.studio", live: true },
 ] as const;
 
 export type Band = (typeof BANDS)[number]["band"];
 
 /** The band this page is being served on, from the browser's host. */
 export function currentBand(hostname: string): Band {
-  return hostname === "datspace.ai" || hostname.startsWith("datspace-ai.") ? "ai" : "io";
+  if (hostname.startsWith("datspace-ai.")) return "ai";
+  return BANDS.find((b) => b.domain === hostname)?.band ?? "io";
 }
 
 /**

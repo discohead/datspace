@@ -10,3 +10,6 @@ dist/
 # Personal brainstorm notes, kept out of the public repo
 .private/
 worker-configuration.d.ts
+# SuperSonic runtime files, copied from node_modules by apps/web/scripts/copy-supersonic.ts
+apps/web/static/fm/supersonic/
+apps/web/static/fm/supersonic-core/

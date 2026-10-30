@@ -7,8 +7,19 @@
     "allowImportingTsExtensions": true,
     "erasableSyntaxOnly": true,
     "resolveJsonModule": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "supersonic-scsynth": [
+        "./node_modules/supersonic-scsynth/supersonic.d.ts"
+      ]
+    }
   },
-  "include": ["src", "test", "*"],
-  "exclude": ["src/service-worker"]
+  "include": [
+    "src",
+    "test",
+    "*"
+  ],
+  "exclude": [
+    "src/service-worker"
+  ]
 }
