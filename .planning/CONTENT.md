@@ -44,7 +44,7 @@ On October 29 Jared asked Claude to write everything in his voice, from his note
 | 103.1 | `patter` | datspace.studio | The natural-language modular synth, in listener mode. |
 | 106.7 | `datspace-fm` | datspace.fm | The generative station and its one decision model. |
 
-Six slots is all the dial holds at this spacing. The essay *Actors all the way down* (Hewitt to Durable Objects, closing on Runway's WorldPrompt) is off the dial until a slot or a page opens up.
+Six slots is all the dial holds at this spacing, so the essay *Actors all the way down* (Hewitt to Durable Objects to agents, closing on Runway's WorldPrompt) is a page, `packages/content/pages/actors.md` at `/actors`, linked from the datspace station and the colophon.
 
 ## Pages
 

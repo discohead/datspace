@@ -25,7 +25,7 @@ That's the whole visual system: true black, true white, one typeface and its mon
 
 The same works are typed tools on [datspace.ai](https://datspace.ai). Agents get seven of them over MCP and a JSON API, and terminals get `npx datspace`. Nothing an agent touches calls a model; agents bring their own. Every call lands in a hash-chained ledger, the live view shows them arrive, and [datspace.dev](https://datspace.dev) checks the whole chain in your browser.
 
-It runs on Cloudflare: two Workers, three Durable Objects (the Ledger, the Inbox, and a Budget), and pages prerendered by SvelteKit from markdown in the repository. The bar count in the corner is the number of bars since January 1, 1973, at 120 BPM: that's the year Carl Hewitt proposed the actor model. Nothing ticks on a server. Every page does the arithmetic.
+It runs on Cloudflare: two Workers, three Durable Objects (the Ledger, the Inbox, and a Budget), and pages prerendered by SvelteKit from markdown in the repository. The bar count in the corner is the number of bars since January 1, 1973, at 120 BPM: that's the year Carl Hewitt proposed the actor model, which is why the network is built from actors ([the long version](/actors)). Nothing ticks on a server. Every page does the arithmetic.
 
 ## The bands
 

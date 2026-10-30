@@ -29,6 +29,8 @@ The tuner's static and the catalog's sleeves play through [Tone.js](https://tone
 - Cloudflare Workers (2017) and Durable Objects (2020): one single-threaded object per logical thing, with private storage, reachable from anywhere.
 - Workers RPC (2024) and Cap'n Web (2025): actors that call each other like local objects.
 
+The longer version is an essay, [Actors all the way down](/actors).
+
 ## Type and color
 
 Set in Geist and Geist Mono. True black, true white, and one color per station, shown only on a lock.
