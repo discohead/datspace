@@ -125,7 +125,10 @@ function occurrences(haystack: string, term: string): number {
   return count;
 }
 
-/** Every term must appear somewhere; matches in the title count most. */
+/**
+ * Every term must appear somewhere; matches in the title count most. Bodies
+ * run to hundreds of words, so a title match outweighs many passing mentions.
+ */
 function score(doc: BundledStation, terms: string[]): number {
   const title = doc.title.toLowerCase();
   const summary = doc.summary.toLowerCase();
@@ -135,7 +138,7 @@ function score(doc: BundledStation, terms: string[]): number {
   let total = 0;
   for (const term of terms) {
     const weighted =
-      3 * occurrences(title, term) + 2 * occurrences(summary, term) + occurrences(rest, term);
+      20 * occurrences(title, term) + 5 * occurrences(summary, term) + occurrences(rest, term);
     if (weighted === 0) return 0;
     total += weighted;
   }

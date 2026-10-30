@@ -107,8 +107,7 @@ a {
   line-height: 1.5;
 }
 
+/* A quote stands apart by its indent, not a rule down its side. */
 .prose blockquote {
-  margin: 1.5rem 0;
-  padding-left: 1rem;
-  border-left: 2px solid var(--ink);
+  margin: 1.5rem 0 1.5rem 1.5rem;
 }

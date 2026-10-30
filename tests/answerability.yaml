@@ -7,6 +7,21 @@
   input: {}
   mustContain: [datspace, agent-native-interface]
 
+- question: What has Jared built for music?
+  tool: search
+  input: { query: SuperCollider }
+  mustContain: [patter, datspace-fm]
+
+- question: Where can I hear something Jared made?
+  tool: get_work
+  input: { slug: datspace-fm }
+  mustContain: [https://datspace.fm, Clef Flash]
+
+- question: What is Mixpanel Headless, and where is its code?
+  tool: get_work
+  input: { slug: mixpanel-headless }
+  mustContain: [github.com/mixpanel/mixpanel-headless, "May 21, 2026"]
+
 - question: What has Jared built on Cloudflare?
   tool: search
   input: { query: Cloudflare }

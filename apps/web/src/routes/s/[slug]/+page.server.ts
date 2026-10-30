@@ -2,7 +2,8 @@ import { error } from "@sveltejs/kit";
 import { content } from "#lib/server/content.ts";
 import { renderMarkdown } from "#lib/server/markdown.ts";
 
-const STUDIES = "1-bit-studies";
+/** The 1-bit studies take the tuner apart, so they play on the datspace station's page. */
+const STUDIES = "datspace";
 
 export function entries() {
   return content.stations.map(({ slug }) => ({ slug }));

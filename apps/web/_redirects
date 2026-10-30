@@ -1,2 +1,4 @@
 # "/index" would otherwise resolve to the root index.html; the index page lives at /index/.
 /index /index/ 308
+# The 1-bit studies were a station until October 29; they now play on the datspace station's page.
+/s/1-bit-studies /s/datspace#studies 301

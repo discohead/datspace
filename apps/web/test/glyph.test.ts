@@ -15,7 +15,7 @@ describe("glyphs", () => {
   });
 
   it("is mirror-symmetric with density between 30% and 60%", async () => {
-    for (const slug of ["datspace", "agent-native-interface", "aux", "mixpanel-headless", "1-bit-studies", "x"]) {
+    for (const slug of ["datspace", "agent-native-interface", "mixpanel-headless", "aux", "patter", "datspace-fm", "x"]) {
       const n = 24;
       const bits = glyphBits(await seed(slug), n);
       for (let y = 0; y < n; y++) {
