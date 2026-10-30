@@ -1,12 +1,12 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import BandSelector from "./BandSelector.svelte";
-  import { currentBand } from "./bands.ts";
+  import { dialHref } from "./bands.ts";
 
-  // On a band's own domain "/" is the band's page, so the wordmark goes to the dial instead.
+  // The wordmark goes to the dial, which on a band's own domain is another site.
   let home = $state("/");
   onMount(() => {
-    if (location.hostname.startsWith("datspace.") && currentBand(location.hostname) !== "io") home = "https://datspace.io/";
+    home = dialHref(location.hostname);
   });
 </script>
 

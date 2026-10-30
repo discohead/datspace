@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { onMount } from "svelte";
+  import { dialHref } from "#lib/site/bands.ts";
   import Glyph from "#lib/site/Glyph.svelte";
   import Header from "#lib/site/Header.svelte";
   import Meta from "#lib/site/Meta.svelte";
@@ -6,6 +8,11 @@
   let { data } = $props();
   const work = $derived(data.work);
   const frequency = $derived(work.frequency.toFixed(1));
+  // Station pages are served on every band's domain; the tuner lives on datspace.io.
+  let hostname = $state("datspace.io");
+  onMount(() => {
+    hostname = location.hostname;
+  });
   const beats = $derived([
     ["Question", work.question],
     ["Prototype", work.prototype],
@@ -55,7 +62,7 @@
         <li><a href={link.url} rel="noopener">{link.label}</a></li>
       {/each}
       <li><a href="https://datspace.ai/api/work/{work.slug}">This work as structured data, on datspace.ai</a></li>
-      <li><a href="/#{frequency}">Back to {frequency} on the tuner</a></li>
+      <li><a href={dialHref(hostname, `#${frequency}`)}>Back to {frequency} on the tuner</a></li>
     </ul>
   </section>
 </main>

@@ -26,3 +26,13 @@ export function currentBand(hostname: string): Band {
 export function bandHref(band: (typeof BANDS)[number], fragment = ""): string {
   return band.live ? `https://${band.domain}/${fragment}` : "https://datspace.io/";
 }
+
+/**
+ * The dial, from wherever this page is served. On a band's own domain "/" is
+ * the band's page, so the dial is a full URL; on datspace.io and in local
+ * development it stays a path.
+ */
+export function dialHref(hostname: string, fragment = ""): string {
+  const away = hostname.startsWith("datspace.") && currentBand(hostname) !== "io";
+  return `${away ? "https://datspace.io" : ""}/${fragment}`;
+}
