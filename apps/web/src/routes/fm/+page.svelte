@@ -370,7 +370,8 @@
       The same answers always get the same decision, so each one is cached by a hash of the answers, and asking again is
       free. A decision reads about 1,300 tokens, at $0.038 a million. Each address can ask twenty times a minute, and
       the network asks at most 20,000 times a day. When it can't ask, a seeded draw from your answers decides, and the
-      station says so. Nothing on datspace.ai calls a model. This page is the one exception on the network.
+      station says so. Nothing on datspace.ai calls a model. This page is the one place on the network where a
+      visitor can cause a model call.
     </p>
 
     <h2>What you're hearing</h2>

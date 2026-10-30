@@ -20,7 +20,7 @@ datspace.fm plays in your browser, in time with a clock that started in 1973. Th
 
 ## A model that only chooses
 
-The station is the one exception to a rule on this network: nothing here calls a model. Agents bring their own to datspace.ai, and a public page that ran inference would cost money for every visitor. Clef Flash is a different kind of model. Given a state and a set of typed questions, it returns a probability for every option and writes no text. It costs $0.038 per million input tokens, about five thousandths of a cent a decision, and the same request always gets the same answer.
+The station is the one exception to a rule on this network: nothing a visitor does calls a model. Agents bring their own to datspace.ai, and a public page that ran inference would cost money for every visitor. Clef Flash is a different kind of model. Given a state and a set of typed questions, it returns a probability for every option and writes no text. It costs $0.038 per million input tokens, about five thousandths of a cent a decision, and the same request always gets the same answer.
 
 So the answers leave the page as ids. The Worker looks up their text in a bank of more than 150 and asks seven questions: which of six systems, which of seven scales, and five ratings from tempo to motion. Every option it can choose is written in the repository. Decisions are cached by a hash of the answers, so asking again is free, and the answers in a station's link play the same station for anyone who opens it. Each address can ask twenty times a minute and the network asks at most 20,000 times a day. Past either, a seeded draw decides, and the page says so.
 

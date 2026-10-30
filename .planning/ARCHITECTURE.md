@@ -4,7 +4,7 @@ Checked against Cloudflare docs and npm on October 21, 2026. Where a section say
 
 ## At launch (October 30)
 
-Two Workers and three actor classes, plus patter on its own Worker at datspace.studio. Nothing agent-facing calls a model; the one model call on the network is datspace.fm's decision (below). This section overrides the rest of the document where they differ; everything else describes the target the week after launch.
+Two Workers and three actor classes, plus patter on its own Worker at datspace.studio. Nothing agent-facing calls a model; the one model call a visitor can cause is datspace.fm's decision (below). patter, in its own repo, calls a model for Jared's prompts only, behind Cloudflare Access. This section overrides the rest of the document where they differ; everything else describes the target the week after launch.
 
 ```
 Browsers ── datspace-web (datspace.io): prerendered from packages/content

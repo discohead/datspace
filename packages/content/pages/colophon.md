@@ -15,7 +15,7 @@ The bar count in the corner is the number of bars since January 1, 1973, at the 
 
 Pages are prerendered by [SvelteKit](https://svelte.dev) from markdown in the repository and served from Cloudflare Workers. The agent interface on [datspace.ai](https://datspace.ai) runs on a second Worker, which also answers for datspace.dev, datspace.fm, and datspace.music and hands their pages to the first. Three Durable Objects keep the network's state: the Ledger, an append-only, hash-chained log that anyone can verify; the Inbox, which holds messages to me; and the Budget, which caps what the network spends each day. [datspace.studio](https://datspace.studio) is [patter](https://github.com/discohead/patter), a separate Worker with Durable Objects of its own.
 
-Nothing an agent touches calls a model; agents bring their own. The one model call on the network is on [datspace.fm](https://datspace.fm): Clef Flash, a decision model on Workers AI, picks the station's system from your answers. It chooses among options written in the repository, writes no text, and is capped at about a dollar a day.
+Nothing an agent touches calls a model; agents bring their own. The one model call a visitor can cause is on [datspace.fm](https://datspace.fm): Clef Flash, a decision model on Workers AI, picks the station's system from your answers. It chooses among options written in the repository, writes no text, and is capped at about a dollar a day. patter calls a model of its own, for my prompts only.
 
 ## Sound
 
