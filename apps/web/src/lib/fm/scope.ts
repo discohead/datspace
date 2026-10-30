@@ -1,12 +1,15 @@
 import type p5 from "p5";
 import { sine } from "./crvs.ts";
+import { HAND_LAG, type Hand } from "./systems.ts";
 
 /**
  * An XY oscilloscope in one bit. While the station plays, the left channel
  * moves the beam across and the right moves it up, so what you see is the
  * sound. Before it plays, the station's curves draw a Lissajous knot instead.
  * Phosphor fades by becoming less likely to be lit, not dimmer: noise lets
- * one bit carry the trail, as in the tuner's threshold study.
+ * one bit carry the trail, as in the tuner's threshold study. While it plays,
+ * the scope is also a pad, and a dotted cursor, like a scope's own, marks the
+ * listener's hand on it.
  */
 
 export interface ScopeState {
@@ -18,10 +21,14 @@ export interface ScopeState {
   sigma: number;
   /** The beam's color, 0–1: white, or the station's hue once it locks. */
   ink: [number, number, number];
+  /** The listener's hand on the pad, or null. */
+  hand: Hand | null;
 }
 
 const TRAIL = 7;
 const FIGURE_POINTS = 1600;
+/** The cursor's dots are this many pixels apart. */
+const DOTS = 3;
 
 export function scope(state: ScopeState, size: number, animate: boolean) {
   return (p: p5) => {
@@ -34,6 +41,11 @@ export function scope(state: ScopeState, size: number, animate: boolean) {
     let image: ImageData;
     let gain = 1;
     let start = 0;
+    // Where the cursor is drawn: on the hand while it's held, then easing back to the centre with the sound.
+    let cursorX = 0;
+    let cursorY = 0;
+    let cursor = false;
+    let last = 0;
 
     const hit = (x: number, y: number) => {
       const px = Math.round((x * 0.47 + 0.5) * (size - 1));
@@ -52,11 +64,19 @@ export function scope(state: ScopeState, size: number, animate: boolean) {
       if (!animate) p.noLoop();
     };
 
+    const lit = (x: number, y: number) => {
+      const j = (y * size + x) * 4;
+      image.data[j] = image.data[j + 1] = image.data[j + 2] = 255;
+    };
+
     p.draw = () => {
       for (let i = 0; i < age.length; i++) if (age[i]! > 0) age[i]!--;
+      const now = performance.now();
+      const dt = Math.min(0.1, (now - last) / 1000);
+      last = now;
 
       // The state is reactive, and every read goes through Svelte; read each field once a frame.
-      const { left: leftNode, right: rightNode, figure, sigma, ink } = state;
+      const { left: leftNode, right: rightNode, figure, sigma, ink, hand } = state;
       if (leftNode && rightNode) {
         leftNode.getFloatTimeDomainData(left);
         rightNode.getFloatTimeDomainData(right);
@@ -93,6 +113,25 @@ export function scope(state: ScopeState, size: number, animate: boolean) {
           data[j + 2] = v;
         }
         data[j + 3] = 255;
+      }
+
+      if (hand) {
+        cursorX = hand.x;
+        cursorY = hand.y;
+        cursor = true;
+      } else if (cursor) {
+        // The master's one-pole lag, so the cursor reaches the centre as the sound does. A still frame skips the glide.
+        const k = animate ? Math.exp((Math.log(0.001) * dt) / HAND_LAG.released) : 0;
+        cursorX *= k;
+        cursorY *= k;
+        cursor = Math.max(Math.abs(cursorX), Math.abs(cursorY)) > 0.01;
+      }
+      if (cursor) {
+        const cx = Math.round(((cursorX + 1) / 2) * (size - 1));
+        const cy = Math.round(((1 - cursorY) / 2) * (size - 1));
+        // Dots counted from the cursor, so they move with it instead of crawling along the lines.
+        for (let i = cy % DOTS; i < size; i += DOTS) lit(cx, i);
+        for (let i = cx % DOTS; i < size; i += DOTS) lit(i, cy);
       }
       context.putImageData(image, 0, 0);
     };

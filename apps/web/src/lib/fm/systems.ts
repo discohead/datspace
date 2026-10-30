@@ -24,6 +24,25 @@ export const MASTER = 200;
 export const MIX_BUS = 16;
 const STEPS = 16;
 
+/**
+ * The listener's hand on the scope, which is also a pad: x across and y up, each from −1 to 1. At the centre,
+ * 0 and 0, the station plays as broadcast. The hand never reaches the score: ds_master smooths it onto two
+ * control buses, and voices map their macro controls to those buses, so only this copy of scsynth bends.
+ */
+export interface Hand {
+  x: number;
+  y: number;
+}
+
+/** The control bus the hand's x is on; y is on the next one. */
+export const HAND_BUS = 0;
+/** A control mapped to a bus reads it on every block, so a voice scheduled before the hand moved still follows it. */
+const X = `c${HAND_BUS}`;
+const Y = `c${HAND_BUS + 1}`;
+
+/** Lag times in seconds, to 60 dB: the station follows a held hand at once, and eases back to the broadcast when it lets go. */
+export const HAND_LAG = { held: 0.1, released: 0.8 } as const;
+
 export interface Station {
   decision: Decision;
   /** Node ids for this station's persistent synths, one per layer, so a retune can fade the old ones out. */
@@ -116,7 +135,10 @@ type Voice = (c: Context) => Packet[];
 
 const s_new = (def: string, ...args: (string | number)[]): Packet => ["/s_new", def, -1, 0, VOICES, "out", MIX_BUS, ...args];
 
-/** Test tones: Ikeda's grid of sines, clicks, and noise. Left and right sit at a ratio, so the scope draws it. */
+/**
+ * Test tones: Ikeda's grid of sines, clicks, and noise. Left and right sit at a ratio, so the scope draws it.
+ * Across, the hand stretches every sound from a tick to a held tone; up, it bends their pitch.
+ */
 const sineVoice: Voice = ({ s, d, bar, step, gain, id }) => {
   const out: Packet[] = [];
   const block = Math.floor(bar / Math.max(1, span(d.motion) / 4));
@@ -124,23 +146,25 @@ const sineVoice: Voice = ({ s, d, bar, step, gain, id }) => {
   const ratios = [1, 1.5, 2, 4 / 3, 1.25, 1.001, 3];
   const ratio = ratios[Math.floor(chance(s.seed, id, "ratio", block) * ratios.length)]!;
   if (step === 0 && chance(s.seed, id, "low", bar) < 0.6) {
-    out.push(s_new("ds_sine", "freq", degreeHz(d.scale, s.root - 12, 0), "ratio", 1.001, "amp", 0.22 * gain, "attack", 0.01, "dur", 0.5, "release", 0.3));
+    out.push(s_new("ds_sine", "freq", degreeHz(d.scale, s.root - 12, 0), "ratio", 1.001, "amp", 0.22 * gain, "attack", 0.01, "dur", 0.5, "release", 0.3,
+      "stretch", X, "bend", Y));
   }
   if (chance(s.seed, id, "tone", block, step) < density) {
     const degree = Math.floor(chance(s.seed, id, "deg", block, step) * 8) + 28 + Math.round(d.brightness * 7);
     const dur = 0.015 + chance(s.seed, id, "dur", block, step) * 0.09;
-    out.push(s_new("ds_sine", "freq", degreeHz(d.scale, s.root, degree), "ratio", ratio, "amp", 0.1 * gain, "dur", dur));
+    out.push(s_new("ds_sine", "freq", degreeHz(d.scale, s.root, degree), "ratio", ratio, "amp", 0.1 * gain, "dur", dur, "stretch", X, "bend", Y));
   }
   if (chance(s.seed, id, "click", bar, step) < density * 0.5) {
-    out.push(s_new("ds_click", "amp", 0.25 * gain, "hp", 2000 + d.brightness * 6000, "pan", chance(s.seed, id, "pan", bar, step) * 2 - 1));
+    out.push(s_new("ds_click", "amp", 0.25 * gain, "hp", 2000 + d.brightness * 6000, "pan", chance(s.seed, id, "pan", bar, step) * 2 - 1, "bend", Y));
   }
   if (step % 4 === 2 && chance(s.seed, id, "burst", block, step) < density * 0.6) {
-    out.push(s_new("ds_burst", "amp", 0.06 * gain, "dur", 0.004 + d.density * 0.02, "hp", 6000 + d.brightness * 6000, "pan", step % 8 === 2 ? -0.7 : 0.7));
+    out.push(s_new("ds_burst", "amp", 0.06 * gain, "dur", 0.004 + d.density * 0.02, "hp", 6000 + d.brightness * 6000, "pan", step % 8 === 2 ? -0.7 : 0.7,
+      "stretch", X, "bend", Y));
   }
   return out;
 };
 
-/** FM blips in a Euclidean pattern that turns by one step at a time, after Mark Fell. */
+/** FM blips in a Euclidean pattern that turns by one step at a time, after Mark Fell. Across is decay; up is the FM index. */
 const pulseVoice: Voice = ({ s, d, bar, step, gain, id }) => {
   const out: Packet[] = [];
   const turn = Math.floor(bar / Math.max(1, span(d.motion) / 8));
@@ -154,17 +178,21 @@ const pulseVoice: Voice = ({ s, d, bar, step, gain, id }) => {
     const index = 0.5 + d.brightness * 5 * sine(0, { rate: 1 })(cycle(bar, step, 8));
     out.push(
       s_new("ds_fm", "freq", degreeHz(d.scale, s.root, degree), "ratio", ratio, "index", index, "amp", 0.22 * gain,
-        "decay", 0.05 + (1 - d.density) * 0.2, "pan", (step / STEPS) * 1.4 - 0.7),
+        "decay", 0.05 + (1 - d.density) * 0.2, "pan", (step / STEPS) * 1.4 - 0.7, "stretch", X, "bright", Y),
     );
   }
   // A second line from the Numeric Repetitor, an octave down, its factor moving each bar.
   if (nr(s.seed % 32, 0, 1 + ((turn + bar) % 16))[step] && chance(s.seed, id, "nr", bar, step) < 0.4 + d.density * 0.5) {
-    out.push(s_new("ds_fm", "freq", degreeHz(d.scale, s.root, 7 + (bar % 3)), "ratio", 1, "index", 1 + d.brightness * 2, "amp", 0.16 * gain, "decay", 0.08));
+    out.push(s_new("ds_fm", "freq", degreeHz(d.scale, s.root, 7 + (bar % 3)), "ratio", 1, "index", 1 + d.brightness * 2, "amp", 0.16 * gain, "decay", 0.08,
+      "stretch", X, "bright", Y));
   }
   return out;
 };
 
-/** A cloud of grains whose four pitches change with the harmony, after Curtis Roads. Persistent; set each bar. */
+/**
+ * A cloud of grains whose four pitches change with the harmony, after Curtis Roads. Persistent; set each bar.
+ * Across is how many grains there are; up is how long each one lasts.
+ */
 const grainVoice: Voice = ({ s, d, bar, step, gain, id }) => {
   if (step !== 0) return [];
   const change = Math.max(1, span(d.motion) / 8);
@@ -181,7 +209,10 @@ const grainVoice: Voice = ({ s, d, bar, step, gain, id }) => {
   ];
 };
 
-/** Six partials in just intonation, one of them moving every few bars, after La Monte Young. Persistent; set each bar. */
+/**
+ * Six partials in just intonation, one of them moving every few bars, after La Monte Young. Persistent; set each bar.
+ * Across stills the beating or speeds it up; up brings the overtones forward. The bells don't follow the hand.
+ */
 const SERIES = [1, 1.5, 2, 2.25, 2.5, 3, 3.5, 4, 4.5, 5, 6, 7];
 const droneVoice: Voice = ({ s, d, bar, step, gain, id }) => {
   const out: Packet[] = [];
@@ -198,13 +229,17 @@ const droneVoice: Voice = ({ s, d, bar, step, gain, id }) => {
   return out;
 };
 
-/** Hypnotic techno: four kicks, hats between, and one wavefolded bass line. The bass is persistent and retriggered. */
+/**
+ * Hypnotic techno: four kicks, hats between, and one wavefolded bass line. The bass is persistent and retriggered.
+ * Across drives the bass line into its folds; up opens its filter and the hats. The kick stays put.
+ */
 const foldVoice: Voice = ({ s, d, bar, step, gain, id }) => {
   const out: Packet[] = [];
   const kicks = d.density < 0.2 ? step % 8 === 0 : step % 4 === 0;
   if (kicks) out.push(s_new("ds_kick", "freq", 46, "amp", 0.42 * gain, "decay", 0.3 + d.space * 0.2));
   if (step % 4 === 2 || (d.density > 0.55 && chance(s.seed, id, "hat", bar, step) < d.density - 0.4)) {
-    out.push(s_new("ds_burst", "amp", (step % 4 === 2 ? 0.1 : 0.05) * gain, "dur", 0.012 + d.brightness * 0.02, "hp", 7000 + d.brightness * 3000, "pan", 0.25));
+    out.push(s_new("ds_burst", "amp", (step % 4 === 2 ? 0.1 : 0.05) * gain, "dur", 0.012 + d.brightness * 0.02, "hp", 7000 + d.brightness * 3000, "pan", 0.25,
+      "stretch", Y));
   }
   // The line: a Numeric Repetitor pattern, its prime from the key and its factor drifting over the cycle.
   const pattern = nr(s.seed % 32, Math.floor(bar / span(d.motion)) % 4, 1 + Math.floor(fold(sine(0.3, { rate: 2 }), 0.8)(cycle(bar, 0, 32)) * 10));
@@ -219,7 +254,7 @@ const foldVoice: Voice = ({ s, d, bar, step, gain, id }) => {
   return out;
 };
 
-/** One bit: an arpeggio and its bass through a single comparator. Persistent and retriggered. */
+/** One bit: an arpeggio and its bass through a single comparator. Persistent and retriggered. Across is decay; up bends the pitch. */
 const bitsVoice: Voice = ({ s, d, bar, step, gain, id }) => {
   const every = d.density > 0.5 ? 1 : 2;
   if (step % every !== 0) return [];
@@ -241,8 +276,13 @@ const VOICES_BY_SYSTEM: Record<System, Voice> = {
   bits: bitsVoice,
 };
 
-/** Systems that hold one synth for the whole broadcast. */
-const PERSISTENT: Partial<Record<System, string>> = { grain: "ds_cloud", drone: "ds_drone", fold: "ds_fold", bits: "ds_bits" };
+/** Systems that hold one synth for the whole broadcast: its SynthDef, then its macro controls, mapped to the hand as it starts. */
+const PERSISTENT: Partial<Record<System, [def: string, ...hand: (string | number)[]]>> = {
+  grain: ["ds_cloud", "swarm", X, "stretch", Y],
+  drone: ["ds_drone", "detune", X, "bright", Y],
+  fold: ["ds_fold", "fold", X, "bright", Y],
+  bits: ["ds_bits", "stretch", X, "bend", Y],
+};
 
 export const MASTER_ID = 1000;
 
@@ -251,6 +291,34 @@ export function layers(s: Station): { id: Layer; system: System; gain: number }[
   const out: { id: Layer; system: System; gain: number }[] = [{ id: "primary", system: s.decision.system, gain: 1 }];
   if (s.second) out.push({ id: "second", system: s.second.system, gain: s.second.level });
   return out;
+}
+
+/**
+ * What the hand bends on each system, across (x) and up (y), by the names the page shows. Each name stands for
+ * the macro controls a system's voices map to that axis, from the voices above and PERSISTENT.
+ */
+export const MACROS: Record<System, { x: string; y: string }> = {
+  sine: { x: "duration", y: "pitch" },
+  pulse: { x: "decay", y: "index" },
+  grain: { x: "density", y: "grain size" },
+  drone: { x: "beating", y: "overtones" },
+  fold: { x: "fold", y: "cutoff" },
+  bits: { x: "decay", y: "pitch" },
+};
+
+/** The macros a station's hand bends: its system's, and the runner-up's too when both play. */
+export function macros(s: Station): { x: string; y: string } {
+  const named = layers(s).map((layer) => MACROS[layer.system]);
+  const join = (axis: "x" | "y") => [...new Set(named.map((m) => m[axis]))].join(" and ");
+  return { x: join("x"), y: join("y") };
+}
+
+/** Move the hand, or let go of it (null). Sent as it happens, not scheduled; the master smooths it. */
+export function handPackets(hand: Hand | null): Packet[] {
+  const axis = (v: number) => (Number.isFinite(v) ? Math.max(-1, Math.min(1, v)) : 0);
+  return [
+    ["/n_set", MASTER_ID, "x", hand ? axis(hand.x) : 0, "y", hand ? axis(hand.y) : 0, "lag", hand ? HAND_LAG.held : HAND_LAG.released],
+  ];
 }
 
 /** The room, once per broadcast: a group for voices, one after it for the master, then the master. */
@@ -266,8 +334,11 @@ export function roomPackets(s: Station): Packet[] {
 export function startPackets(s: Station): Packet[] {
   const packets: Packet[] = [["/n_set", MASTER_ID, ...masterArgs(s.decision)]];
   for (const layer of layers(s)) {
-    const def = PERSISTENT[layer.system];
-    if (def) packets.push(["/s_new", def, s.nodes[layer.id], 0, VOICES, "out", MIX_BUS, "amp", 0]);
+    const persistent = PERSISTENT[layer.system];
+    if (persistent) {
+      const [def, ...hand] = persistent;
+      packets.push(["/s_new", def, s.nodes[layer.id], 0, VOICES, "out", MIX_BUS, "amp", 0, ...hand]);
+    }
   }
   return packets;
 }

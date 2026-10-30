@@ -1,11 +1,13 @@
 import {
   eventsAt,
+  handPackets,
   initialPackets,
   releasePackets,
   roomPackets,
   startPackets,
   stepAt,
   stopPackets,
+  type Hand,
   type Packet,
   type Station,
 } from "./systems.ts";
@@ -29,6 +31,8 @@ export interface Broadcast {
   scope: { left: AnalyserNode; right: AnalyserNode };
   /** Switch stations without a gap: the old persistent synths fade as the new ones start. */
   tune(next: Station): void;
+  /** Move the listener's hand on the scope, or let go of it (null). It bends this copy of the station, live. */
+  perform(hand: Hand | null): void;
   stop(): Promise<void>;
 }
 
@@ -105,6 +109,9 @@ export async function tuneIn(first: Station, clockOffsetMs: number): Promise<Bro
       current = station;
       next = stepAt(current.decision.bpm, now()) + 1;
       send(initialPackets(current, next));
+    },
+    perform(hand) {
+      send(handPackets(hand));
     },
     async stop() {
       clearInterval(timer);

@@ -20,7 +20,7 @@
   import type { Broadcast } from "#lib/fm/engine.ts";
   import Scope from "#lib/fm/Scope.svelte";
   import { knot, type ScopeState } from "#lib/fm/scope.ts";
-  import { position, station, type Station } from "#lib/fm/systems.ts";
+  import { macros, position, station, type Hand, type Station } from "#lib/fm/systems.ts";
   import Header from "#lib/site/Header.svelte";
   import Meta from "#lib/site/Meta.svelte";
   import { stationHue } from "#lib/tuner/glyph.ts";
@@ -51,6 +51,9 @@
     fold: [1, 2, 3, 0.4],
     bits: [1, 3, 5, 0.9],
   };
+  /** The sliders under the scope: the hand from the keyboard, one axis each. */
+  const AXES = ["x", "y"] as const;
+  const STEP = 0.1;
   const REASONS: Record<FallbackReason, string> = {
     rate_limited: "this address asked too many times in the last minute",
     over_budget: "the network has used today's budget for it",
@@ -74,7 +77,9 @@
   /** Set when a button that had focus is going away with what it answered. */
   let refocus = $state(false);
 
-  const scopeState: ScopeState = $state({ left: null, right: null, figure: null, sigma: 1, ink: [1, 1, 1] });
+  const scopeState: ScopeState = $state({ left: null, right: null, figure: null, sigma: 1, ink: [1, 1, 1], hand: null });
+  /** The listener's hand on the scope's pad, from a pointer or the sliders under it. */
+  let hand = $state.raw<Hand | null>(null);
 
   const asking = $derived(questions.find((q) => !answers.some((a) => a.q === q.id)) ?? null);
   const decision = $derived(decided?.decision ?? null);
@@ -83,6 +88,8 @@
     decision ? (Object.entries(decision.systems) as [System, number][]).sort((a, b) => b[1] - a[1]) : [],
   );
   const where = $derived(decision && now !== null ? position(decision.bpm, now + clockOffset) : null);
+  /** What the hand bends on this station: its system's two macros, and the runner-up's when both play. */
+  const bends = $derived(decided ? macros(station(decided.decision, decided.key)) : null);
 
   function decideUrl(): string {
     return location.hostname === "datspace.fm" ? "/decide" : "https://datspace.fm/decide";
@@ -197,7 +204,43 @@
     }
   }
 
+  function perform(next: Hand | null) {
+    hand = next;
+    scopeState.hand = next;
+    broadcast?.perform(next);
+  }
+
+  /** The keys a slider takes, for one axis of the hand. Escape lets go of both. */
+  function nudge(axis: (typeof AXES)[number], event: KeyboardEvent) {
+    const value = hand?.[axis] ?? 0;
+    const to: Record<string, number> = {
+      ArrowRight: value + STEP,
+      ArrowUp: value + STEP,
+      ArrowLeft: value - STEP,
+      ArrowDown: value - STEP,
+      PageUp: value + 5 * STEP,
+      PageDown: value - 5 * STEP,
+      Home: -1,
+      End: 1,
+    };
+    if (event.key === "Escape") {
+      event.preventDefault();
+      perform(null);
+    } else if (event.key in to) {
+      event.preventDefault();
+      const next = { x: hand?.x ?? 0, y: hand?.y ?? 0 };
+      next[axis] = Math.round(Math.max(-1, Math.min(1, to[event.key]!)) * 100) / 100;
+      perform(next);
+    }
+  }
+
+  /** Tabbing away from the sliders lets go, as lifting a finger does. */
+  function letGo(event: FocusEvent) {
+    if (!(event.currentTarget as HTMLElement).contains(event.relatedTarget as Node | null)) perform(null);
+  }
+
   async function stop() {
+    perform(null);
     const ending = broadcast;
     broadcast = null;
     playing = false;
@@ -260,6 +303,9 @@
   });
 
   const percent = (p: number) => `${Math.round(p * 100)}%`;
+  const hundredths = (v: number) => Math.round(v * 100) / 100;
+  /** −0.40, 0.00, +0.40: signed, so the centre reads as the centre. */
+  const signed = (v: number) => `${hundredths(v) > 0 ? "+" : hundredths(v) < 0 ? "−" : ""}${Math.abs(hundredths(v)).toFixed(2)}`;
   const cost = (usd: number) => `$${usd.toFixed(7)}`;
 </script>
 
@@ -283,10 +329,34 @@
 
   <section class="receiver" aria-label="Receiver" bind:this={receiver}>
     <div class="screen">
-      <Scope signal={scopeState} animate={!prefersReducedMotion.current} />
+      <Scope signal={scopeState} animate={!prefersReducedMotion.current} onhand={playing ? perform : null} />
+      {#if playing && bends}
+        <div class="macros readout" role="group" aria-label="Macros" onfocusout={letGo}>
+          {#each AXES as axis (axis)}
+            {@const value = hand?.[axis] ?? 0}
+            <div
+              class="macro"
+              role="slider"
+              tabindex="0"
+              aria-label={bends[axis]}
+              aria-orientation={axis === "x" ? "horizontal" : "vertical"}
+              aria-valuemin={-1}
+              aria-valuemax={1}
+              aria-valuenow={hundredths(value)}
+              aria-valuetext={hundredths(value) === 0 ? "0, as broadcast" : String(hundredths(value))}
+              onkeydown={(event) => nudge(axis, event)}
+            >
+              <span class="axis">{axis}</span>
+              <span class="bends">{bends[axis]}</span>
+              <span class="value">{signed(value)}</span>
+            </div>
+          {/each}
+        </div>
+      {/if}
       <p class="caption">
         {#if playing}
-          The scope is the sound before the room: the left channel moves the beam across, the right moves it up.
+          The scope is the sound before the room: the left channel moves the beam across, the right moves it up. It's
+          also a pad: point at it or touch it to bend this copy of the station, and let go to return to the broadcast.
         {:else if decision}
           The station's curves, before it plays: a {FIGURES[decision.system].slice(0, 3).join(":")} Lissajous knot.
         {:else}
@@ -416,6 +486,21 @@
       the one-bit music of early home computers (Bits).
     </p>
 
+    <h2>Playing along</h2>
+    <p>
+      While the station plays, the scope is an XY pad. Point at it, or touch it, and two macros bend what you hear,
+      one across and one up, from the centre of the pad, where nothing changes, to its edges. Each system has its own
+      pair: duration and pitch for Sine, decay and FM index for Pulse, density and grain size for Grain, beating and
+      overtones for Drone, fold and cutoff for Fold, and decay and pitch for Bits. A macro can move several things at
+      once: on Fold, cutoff opens the bass line's filter, adds resonance, and opens the hats.
+    </p>
+    <p>
+      The pad bends only your copy. The score doesn't change, so you stay on the same bar as everyone else, and when
+      you let go the station eases back to the broadcast. Inside scsynth, the master smooths your hand onto two control
+      buses, and every voice maps its macros to them as it starts, so a note scheduled before your hand moved still
+      follows it. From the keyboard, the two sliders under the scope do the same with the arrow keys.
+    </p>
+
     <h2>Source</h2>
     <p>
       This page, its SynthDefs, and the question bank are at
@@ -444,6 +529,23 @@
   .caption {
     margin: 0.6rem 0 0;
     font-size: 0.85rem;
+  }
+
+  .macros {
+    display: grid;
+    gap: 0.1rem;
+    margin: 0.6rem 0 0;
+    font-size: 0.85rem;
+  }
+
+  .macro {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.05rem 0.25rem;
+  }
+
+  .macro .bends {
+    flex: 1;
   }
 
   .readouts {
