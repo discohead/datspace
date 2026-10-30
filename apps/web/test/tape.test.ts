@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { clearTape, readTape, recordLock } from "../src/lib/tuner/tape.ts";
 
 function memory(): Storage {
@@ -36,7 +36,13 @@ describe("tape", () => {
   });
 
   it("works without storage", () => {
-    expect(recordLock({ slug: "a", title: "A", frequency: 88.7, at: 1 }, undefined)).toHaveLength(1);
-    expect(readTape(undefined)).toEqual([]);
+    // Node 25 and later have a global sessionStorage, which `undefined` would fall back to.
+    vi.stubGlobal("sessionStorage", undefined);
+    try {
+      expect(recordLock({ slug: "a", title: "A", frequency: 88.7, at: 1 }, undefined)).toHaveLength(1);
+      expect(readTape(undefined)).toEqual([]);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });
