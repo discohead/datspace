@@ -1,8 +1,9 @@
 /**
  * Compiles datspace.fm's SynthDefs (src/lib/fm/synthdefs.scd) with
  * SuperCollider's sclang into static/fm/synthdefs/. With --check it also
- * renders each voice offline through the master and fails on silence,
- * clipping, or anything that isn't a number.
+ * renders each voice offline through the master, with the hand at the centre
+ * of the scope's pad and at each corner its macros reach, and fails on
+ * silence, clipping, or anything that isn't a number.
  *
  *   pnpm --filter @datspace/web synthdefs [--check]
  *
