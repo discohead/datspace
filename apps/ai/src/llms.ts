@@ -16,7 +16,8 @@ export function llmsTxt(content: ContentBundle, origin: string): string {
     `- MCP (Streamable HTTP, stateless, no auth): ${origin}/mcp`,
     "- CLI: `npx datspace ls`",
     `- JSON (API version ${API_VERSION}):`,
-    ...API_ENDPOINTS.map((e) => `  - ${origin}${e}`),
+    // The origin goes in front of the path, after a method if the endpoint names one: "POST https://…/api/transmit".
+    ...API_ENDPOINTS.map((e) => `  - ${e.replace("/api/", `${origin}/api/`)}`),
     "",
     "## Stations",
     "",

@@ -108,6 +108,10 @@ describe("datspace-ai", () => {
     expect(text).toContain("https://datspace.ai/mcp");
     expect(text).toContain("https://datspace.ai/api/work/agent-native-interface.md");
     expect(text).toContain("npx datspace ls");
+    // Every JSON endpoint is a whole URL, including the one that names its method.
+    const endpoints = text.split("\n").filter((line) => line.startsWith("  - "));
+    expect(endpoints.length).toBeGreaterThan(0);
+    for (const line of endpoints) expect(line).toMatch(/^ {2}- (POST )?https:\/\/datspace\.ai\/api\//);
   });
 
   it("names datspace.ai's surfaces in every band's llms.txt, since MCP answers only there", async () => {
