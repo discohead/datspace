@@ -22,13 +22,13 @@ export type System = keyof typeof SYSTEMS;
 export const SYSTEM_NAMES = Object.keys(SYSTEMS) as System[];
 
 export const SCALES = {
-  phrygian: "Dark, tense, and close, with a half step above the root.",
-  aeolian: "Sober and grounded: plain minor.",
-  dorian: "Cool and moving: minor with a lifted sixth.",
-  lydian: "Bright, floating, and a little unreal.",
-  pentatonic: "Open and easy: five notes, nothing clashes.",
-  wholetone: "Dreamlike and unresolved: six even steps and no home.",
-  harmonic: "Pure and strange: the overtones of one low note, a little out of tune with a piano.",
+  phrygian: "Dark, tense, and close: minor with a half step above the root, as in a lot of techno.",
+  aeolian: "Sober and grounded: the plain minor scale.",
+  dorian: "Cool and moving: minor with a raised sixth, as in deep house and modal jazz.",
+  lydian: "Bright and floating: major with a raised fourth, a little unreal.",
+  pentatonic: "Open and easy: five notes with no half steps, so nothing clashes.",
+  wholetone: "Dreamlike and unresolved: six even steps and no home note.",
+  harmonic: "Still and ringing: the overtones of one low note, the way a drone or a bell sounds.",
 } as const;
 
 export type Scale = keyof typeof SCALES;
@@ -162,7 +162,10 @@ export function clefRequest(answers: readonly Answer[]): ClefRequest {
     model: "clef-flash",
     state: {
       note: "A listener of an experimental radio station answered cryptic multiple-choice questions. Read the answers as a mood, not literally.",
-      answers: answers.map(({ q, a }) => ({ question: question(q)?.prompt ?? q, answer: answerText(q, a) ?? a })),
+      // In question order, not asking order: the same answers are the same request.
+      answers: [...answers]
+        .sort((x, y) => (x.q < y.q ? -1 : x.q > y.q ? 1 : 0))
+        .map(({ q, a }) => ({ question: question(q)?.prompt ?? q, answer: answerText(q, a) ?? a })),
     },
     questions: {
       system: { type: "choice", instructions: "Which sound system suits the listener's mood?", criteria: shuffled(SYSTEMS) },

@@ -2,7 +2,6 @@ import { sha256Hex } from "@datspace/contract";
 import {
   CLEF_MODEL,
   CLEF_USD_PER_INPUT_TOKEN,
-  canonical,
   clefRequest,
   fromClef,
   localDecision,
@@ -78,8 +77,10 @@ export async function handleDecide(
     );
   const fallback = (reason: FallbackReason) => respond({ decision: localDecision(answers), source: "local", reason }, false);
 
-  // Clef's answer is a pure function of the request, so a cached one is exact.
-  const cacheKey = new Request(`https://datspace.fm/decide/${await sha256Hex(`${CLEF_MODEL}|${canonical(answers)}`)}`);
+  // Clef's answer is a pure function of the request, so a cached one is exact. The key covers the
+  // whole request, so rewording a criterion in @datspace/fm asks again instead of serving the old answer.
+  const input = clefRequest(answers);
+  const cacheKey = new Request(`https://datspace.fm/decide/${await sha256Hex(`${CLEF_MODEL}|${JSON.stringify(input)}`)}`);
   const hit = await caches.default.match(cacheKey);
   if (hit) return respond(await hit.json<Stored>(), true);
 
@@ -89,7 +90,7 @@ export async function handleDecide(
 
   let stored: Stored;
   try {
-    const clef = ClefResponse.parse(await model.run(CLEF_MODEL, clefRequest(answers)));
+    const clef = ClefResponse.parse(await model.run(CLEF_MODEL, input));
     const inputTokens = clef.usage?.input_tokens;
     stored = {
       decision: fromClef(clef.answers),

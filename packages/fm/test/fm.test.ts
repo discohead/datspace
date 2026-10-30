@@ -90,7 +90,7 @@ describe("the Clef request", () => {
 
   it("is a pure function of the answers, with every option present", () => {
     const one = clefRequest(answers);
-    expect(clefRequest([...answers].reverse()).questions).toEqual(one.questions);
+    expect(clefRequest([...answers].reverse())).toEqual(one);
     const choice = one.questions.system;
     expect(choice.type).toBe("choice");
     if (choice.type === "choice") expect(Object.keys(choice.criteria).sort()).toEqual([...SYSTEM_NAMES].sort());
