@@ -283,8 +283,11 @@
 
   <header class="top" bind:clientHeight={headerHeight}>
     <div class="plate left">
-      <a class="wordmark" href="/">datspace</a>
-      <BandSelector fragment={touched ? fragment : ""} />
+      <div class="masthead">
+        <a class="wordmark" href="/">datspace</a>
+        <BandSelector fragment={touched ? fragment : ""} />
+      </div>
+      <p class="agents">Agents: <a href="https://datspace.ai/">datspace.ai</a> <span class="surfaces">· MCP, JSON, CLI</span></p>
     </div>
     <nav class="plate" aria-label="Site">
       <button type="button" class="sound" aria-pressed={soundOn} onclick={toggleSound}>Sound</button>
@@ -400,9 +403,36 @@
   }
 
   .left {
+    display: grid;
+    justify-items: start;
+    gap: 0.4rem;
+  }
+
+  .masthead {
     display: flex;
     align-items: center;
     gap: 1rem;
+  }
+
+  /* Agents read the dial too; this is where it tells them which band is theirs. */
+  .agents {
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+  }
+
+  /* The whole line needs about 369px; narrower than that, it keeps the address and drops the list. */
+  @media (max-width: 23.25rem) {
+    .surfaces {
+      display: none;
+    }
+  }
+
+  /* Short screens have no room to spare above the panel; there it would push the site links under it. */
+  @media (max-height: 36rem) {
+    .agents {
+      display: none;
+    }
   }
 
   nav {
@@ -435,7 +465,7 @@
       gap: 0.5rem;
     }
 
-    .left {
+    .masthead {
       flex-wrap: wrap;
       gap: 0.5rem 1rem;
     }
