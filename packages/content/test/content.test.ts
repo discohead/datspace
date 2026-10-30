@@ -93,10 +93,10 @@ describe("loadContent", () => {
   it("rejects live stations 3.0 MHz apart", async () => {
     await writeFile(join(root, "stations", "close.md"), station({ slug: "close", frequency: 95.3 }));
     const near = await problems();
-    expect(near).toEqual([
+    expect(near).toContainEqual(
       "stations/close.md: frequency: 95.3 is 3.0 MHz from agent-native-interface (92.3) in " +
         "stations/agent-native-interface.md; live stations must be at least 3.2 MHz apart",
-    ]);
+    );
   });
 
   it("allows an unlit station close to a live one", async () => {

@@ -1,23 +1,101 @@
 {
   "basics": {
     "name": "Jared McFarland",
-    "label": "Prototype researcher",
-    "summary": "Support engineer to frontier prototyper over eleven years at one company, with a parallel life in sound.",
+    "label": "Senior software engineer: zero-to-one products and tools for AI agents",
+    "summary": "A hands-on engineer who likes figuring out what to build as much as building it. Over eleven years at Mixpanel he has gone from customer support to mobile SDKs to AI products, most recently taking Mixpanel Headless from a solo experiment to a public launch. A lifelong experimental electronic musician.",
     "url": "https://datspace.io",
+    "location": "South Lake Tahoe, California",
     "profiles": [
       { "network": "GitHub", "username": "discohead", "url": "https://github.com/discohead" }
     ]
   },
-  "work": [],
+  "work": [
+    {
+      "name": "Mixpanel",
+      "position": "Senior Software Engineer",
+      "startDate": "2025-02",
+      "summary": "Agent-native tools for analytics, and mobile Session Replay.",
+      "highlights": [
+        "Created Mixpanel Headless, a Python SDK and CLI for developers and AI agents: started as a side project in December 2025, open sourced, and launched in public beta at MXP London on May 21, 2026.",
+        "Took mobile Session Replay from a solo prototype to general availability in 2025: built the iOS SDK in Swift to beta and wrote the Android SDK in Kotlin from scratch, then grew the effort into a staffed team."
+      ]
+    },
+    {
+      "name": "Mixpanel",
+      "position": "Software Engineer",
+      "startDate": "2018-09",
+      "endDate": "2025-01",
+      "highlights": [
+        "Full-stack billing, payments, and pricing, including the credits system behind Mixpanel for Startups.",
+        "SDKs on about ten platforms (iOS, Android, Flutter, React Native, Unity, Python, Node, Ruby, PHP, Java), shipping feature flags and autocapture.",
+        "Data engineering on dbt and BigQuery."
+      ]
+    },
+    {
+      "name": "Mixpanel",
+      "position": "Support Engineer",
+      "startDate": "2015-01",
+      "endDate": "2018-08",
+      "highlights": [
+        "Mixpanel's first support engineer in Europe.",
+        "Built mixpanel-utils, a Python module that replaced a collection of internal scripts; released publicly and still used by customers and support engineers."
+      ]
+    },
+    {
+      "name": "Advanced Service Technologies",
+      "position": "Project Manager",
+      "startDate": "2010-07",
+      "endDate": "2014-12",
+      "summary": "Nationwide retail point-of-sale installations and upgrades."
+    },
+    {
+      "name": "Self-employed",
+      "position": "DJ and music producer",
+      "startDate": "2006-10",
+      "endDate": "2010-06",
+      "summary": "Residencies in Los Angeles, and several releases."
+    }
+  ],
   "projects": [
     {
       "name": "datspace",
-      "description": "A portfolio network: a tuner for people at datspace.io and an actor network for agents at datspace.ai.",
+      "description": "This network: a tuner for people at datspace.io and an actor network for agents at datspace.ai, on Cloudflare Workers and Durable Objects, with MCP, a JSON API, and a CLI.",
       "url": "https://github.com/discohead/datspace"
+    },
+    {
+      "name": "Mixpanel Headless",
+      "description": "Mixpanel's Python SDK and CLI for developers and AI agents, with a Claude Code plugin that writes code instead of calling tools.",
+      "url": "https://github.com/mixpanel/mixpanel-headless"
+    },
+    {
+      "name": "patter",
+      "description": "A modular synthesizer you patch by talking: an agent harness around SuperCollider running in the browser as WebAssembly. Listen in at datspace.studio.",
+      "url": "https://github.com/discohead/patter"
+    },
+    {
+      "name": "datspace.fm",
+      "description": "A generative station on SuperSonic whose system a decision model, Clef Flash, chooses from three cryptic questions.",
+      "url": "https://datspace.fm"
+    },
+    {
+      "name": "aux",
+      "description": "Apple Music for coding agents: a Swift CLI and MCP server with 100 commands over MusicKit, the Apple Music API, and Music.app.",
+      "url": "https://github.com/discohead/aux"
+    },
+    {
+      "name": "Curves for Processing",
+      "description": "A library of composable curve functions, where any parameter can be another curve; since ported to Lua, Python, Ruby, C++, and TypeScript.",
+      "url": "https://github.com/discohead/curves-for-processing"
     }
   ],
-  "skills": [],
+  "skills": [
+    { "name": "Languages", "keywords": ["TypeScript", "Python", "Swift", "Kotlin", "SQL", "SuperCollider"] },
+    { "name": "Agents", "keywords": ["MCP", "CLIs and SDKs for agents", "Claude Code plugins", "evaluation without a model in the loop"] },
+    { "name": "Platforms", "keywords": ["Cloudflare Workers", "Durable Objects", "Workers AI", "SvelteKit", "iOS", "Android"] },
+    { "name": "Sound and image", "keywords": ["SuperCollider", "p5.js", "Web Audio", "modular synthesis", "video production"] }
+  ],
   "contact": {
-    "email": "jared@datspace.io"
+    "email": "jared@datspace.io",
+    "preferences": "Email, or the transmit tool on datspace.ai over MCP or the JSON API."
   }
 }
