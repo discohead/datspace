@@ -9,7 +9,7 @@ October 29 to 30. Every domain on the band selector now serves something real, a
 | datspace.io | Six stations, written in full: datspace (with the 1-bit studies on its page), the agent-native interface, Mixpanel Headless, aux, patter, and datspace.fm. About, the colophon, `profile.json`, and an essay, *Actors all the way down*, at `/actors`. |
 | datspace.ai | Unchanged surfaces; llms.txt lists the bands. |
 | datspace.dev | The shape, the contract (all seven tools with their schemas and calls on every surface), the ledger verified in the browser (454 events, seq 1 to 454, on October 30), answerability runnable against production, and the build log. |
-| datspace.fm | A generative station on SuperSonic. Three questions from a bank of 153 go to Clef Flash through `POST /decide`; ten SynthDefs play one of six systems, in time with the 1973 clock; a one-bit XY scope draws the voices. |
+| datspace.fm | A generative station on SuperSonic. Three questions from a bank of 153 go to Clef Flash through `POST /decide`; ten SynthDefs play one of six systems, in time with the 1973 clock; a one-bit XY scope draws the voices. Since October 30 the scope is also an XY pad: two macros per system, under a pointer, a finger, or the keyboard, bend the listener's copy until they let go. |
 | datspace.music | DSM001 to DSM012, unpressed; each sleeve plays its glyph like a player-piano roll, in Tone.js after a press. |
 | datspace.studio | patter in listener mode (github.com/discohead/patter, AGPL-3.0): anyone can listen and turn knobs on their own copy; `/agents`, `/api`, and `/login` sit behind Access. |
 
