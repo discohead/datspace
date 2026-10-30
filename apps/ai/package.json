@@ -13,6 +13,7 @@
   "dependencies": {
     "@datspace/content": "workspace:*",
     "@datspace/contract": "workspace:*",
+    "@datspace/fm": "workspace:*",
     "@modelcontextprotocol/server": "2.3.1",
     "agents": "0.30.0",
     "zod": "^4.6.7"

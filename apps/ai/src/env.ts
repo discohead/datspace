@@ -1,5 +1,6 @@
 import { ContentBundle, createStaticSource, type Source, type Transmitter } from "@datspace/contract";
 import raw from "@datspace/content/content.json" with { type: "json" };
+import type { Budget } from "./budget.ts";
 import type { Inbox } from "./inbox.ts";
 import type { Ledger } from "./ledger.ts";
 
@@ -12,6 +13,10 @@ export function ledger(env: Env): DurableObjectStub<Ledger> {
 
 export function inbox(env: Env): DurableObjectStub<Inbox> {
   return (env.INBOX as DurableObjectNamespace<Inbox>).getByName("inbox");
+}
+
+export function budget(env: Env): DurableObjectStub<Budget> {
+  return (env.BUDGET as DurableObjectNamespace<Budget>).getByName("budget");
 }
 
 /** The tools' view of the network. `transmitter` binds `transmit` to the current request. */

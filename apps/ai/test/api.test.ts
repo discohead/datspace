@@ -112,9 +112,10 @@ describe("datspace-ai", () => {
 });
 
 describe("unlit domains", () => {
-  it.each(["dev", "fm", "music", "studio"])("datspace.%s redirects to datspace.io", async (band) => {
-    const res = await exports.default.fetch(`https://datspace.${band}/anything`, { redirect: "manual" });
+  // datspace.studio reaches this Worker only if patter's route there is removed.
+  it("datspace.studio redirects to datspace.io", async () => {
+    const res = await exports.default.fetch("https://datspace.studio/anything", { redirect: "manual" });
     expect(res.status).toBe(302);
-    expect(res.headers.get("location")).toBe(`https://datspace.io/#${band}`);
+    expect(res.headers.get("location")).toBe("https://datspace.io/#studio");
   });
 });

@@ -1,31 +1,47 @@
 import { handleAdmin } from "./admin.ts";
 import { handleApi } from "./api.ts";
+import { handleDecide } from "./decide.ts";
 import { content, ledger } from "./env.ts";
 import { json, jsonError } from "./http.ts";
 import { llmsTxt } from "./llms.ts";
 import { handleMcp } from "./mcp.ts";
 
+export { Budget } from "./budget.ts";
 export { Inbox } from "./inbox.ts";
 export { Ledger } from "./ledger.ts";
 
-/** Domains on the dial that aren't live yet. They redirect to datspace.io until their phase. */
-const UNLIT: Record<string, string> = {
-  "datspace.dev": "dev",
-  "datspace.fm": "fm",
-  "datspace.music": "music",
-  "datspace.studio": "studio",
+/**
+ * Each band's front page on datspace-web, by domain; `/` on any other host
+ * (workers.dev, local) is datspace.ai's. datspace-web's reroute hook maps
+ * client-side navigation the same way.
+ */
+const FRONT_PAGES: Record<string, string> = {
+  "datspace.ai": "/ai",
+  "datspace.dev": "/dev",
+  "datspace.fm": "/fm",
+  "datspace.music": "/music",
 };
 
 /**
- * datspace.ai: the agent-facing surfaces live here. `/` is the human view of
- * agent activity, and every other path is a human page, all served by
- * datspace-web over the WEB service binding.
+ * datspace.studio is patter, on a route that takes precedence over this
+ * Worker's custom domain. If that route is ever removed, the band falls back
+ * to the dial.
+ */
+const UNLIT: Record<string, string> = { "datspace.studio": "studio" };
+
+/**
+ * datspace.ai: the agent-facing surfaces live here. Every band domain but
+ * datspace.studio also reaches this Worker; human pages on all of them are
+ * served by datspace-web over the WEB service binding.
  */
 export default {
   async fetch(request, env, ctx): Promise<Response> {
     const url = new URL(request.url);
     const band = UNLIT[url.hostname];
     if (band) return Response.redirect(`https://datspace.io/#${band}`, 302);
+
+    // The vibe check, everywhere but datspace.ai, whose surfaces never call a model.
+    if (url.pathname === "/decide" && url.hostname !== "datspace.ai") return handleDecide(request, env, ctx);
 
     const agentFacing = url.pathname === "/mcp" || url.pathname.startsWith("/api/");
     if (agentFacing && !(await withinLimit(request, env))) {
@@ -54,7 +70,17 @@ export default {
     if (url.pathname === "/live.json") {
       return json({ events: await ledger(env).recent({ limit: 50 }) }, { headers: { "cache-control": "no-store" } });
     }
-    if (url.pathname === "/") return env.WEB.fetch(new Request(new URL("/ai", url), request));
+    // datspace.dev's explorer pages backward through the whole log to check its chain. Not a tool either.
+    if (url.pathname === "/ledger.json") {
+      const before = Number(url.searchParams.get("before"));
+      return json(
+        { events: await ledger(env).recent({ limit: 100, ...(Number.isInteger(before) && before > 0 ? { beforeSeq: before } : {}) }) },
+        { headers: { "cache-control": "no-store" } },
+      );
+    }
+    if (url.pathname === "/") {
+      return env.WEB.fetch(new Request(new URL(FRONT_PAGES[url.hostname] ?? "/ai", url), request));
+    }
     return env.WEB.fetch(request);
   },
 } satisfies ExportedHandler<Env>;
