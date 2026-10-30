@@ -70,6 +70,9 @@
   let current: Station | null = null;
   let nodeBase = 1001;
   let copied = $state(false);
+  let receiver: HTMLElement;
+  /** Set when a button that had focus is going away with what it answered. */
+  let refocus = $state(false);
 
   const scopeState: ScopeState = $state({ left: null, right: null, figure: null, sigma: 1, ink: [1, 1, 1] });
 
@@ -150,22 +153,26 @@
     scopeState.ink = result.decision.sigma < LOCK_SIGMA ? stationHue(result.key.padStart(64, "0")) : [1, 1, 1];
   }
 
-  function answer(q: Question, index: number) {
+  function answer(q: Question, index: number, event: MouseEvent) {
+    handOff(event);
     answers = [...answers, { q: q.id, a: answerId(index) }];
     if (!questions.some((x) => !answers.some((a) => a.q === x.id))) void decide(answers);
   }
 
-  function another() {
+  function another(event: MouseEvent) {
+    handOff(event);
     const asked = new Set(answers.map((a) => a.q));
     questions = [...questions, ...draw(1, Math.random, asked)];
   }
 
-  function retune() {
+  function retune(event: MouseEvent) {
+    handOff(event);
     answers = [];
     questions = draw(FIRST_QUESTIONS);
   }
 
-  function skip() {
+  function skip(event: MouseEvent) {
+    handOff(event);
     questions = HOUSE.map((a) => BANK.find((q) => q.id === a.q)!);
     answers = HOUSE;
     void decide(HOUSE);
@@ -235,6 +242,23 @@
     };
   });
 
+  // These buttons take themselves away: an answer brings the next question, and the last answer brings the station.
+  // Pressed from the keyboard (a click with no mouse button count), the first answer or the station's main control,
+  // whichever appears, takes focus, instead of focus falling back to the top of the page. A pointer needs no help.
+  function handOff(event: MouseEvent) {
+    if (event.detail === 0 && document.activeElement === event.currentTarget) refocus = true;
+  }
+
+  $effect(() => {
+    void [asking, deciding, decided];
+    if (!refocus) return;
+    const next = receiver.querySelector<HTMLElement>(".answers button, .controls .primary");
+    if (next) {
+      next.focus();
+      refocus = false;
+    }
+  });
+
   const percent = (p: number) => `${Math.round(p * 100)}%`;
   const cost = (usd: number) => `$${usd.toFixed(7)}`;
 </script>
@@ -257,7 +281,7 @@
     plays.
   </p>
 
-  <section class="receiver" aria-label="Receiver">
+  <section class="receiver" aria-label="Receiver" bind:this={receiver}>
     <div class="screen">
       <Scope signal={scopeState} animate={!prefersReducedMotion.current} />
       <p class="caption">
@@ -287,7 +311,7 @@
           </legend>
           <div class="answers">
             {#each asking.answers as text, i (text)}
-              <button type="button" onclick={() => answer(asking, i)}>{text}</button>
+              <button type="button" onclick={(event) => answer(asking, i, event)}>{text}</button>
             {/each}
           </div>
         </fieldset>
@@ -336,11 +360,10 @@
           </p>
 
           <div class="controls">
-            {#if playing}
-              <button type="button" class="primary" onclick={stop}>Stop</button>
-            {:else}
-              <button type="button" class="primary" onclick={play} disabled={starting}>{starting ? "Tuning in" : "Play"}</button>
-            {/if}
+            <!-- One button for Play and Stop, so focus stays on it. aria-disabled, not disabled, which would drop focus. -->
+            <button type="button" class="primary" onclick={playing ? stop : play} aria-disabled={starting}>
+              {playing ? "Stop" : starting ? "Tuning in" : "Play"}
+            </button>
             {#if answers.length < MAX_ANSWERS}
               <button type="button" onclick={another}>Answer another</button>
             {/if}
@@ -490,7 +513,7 @@
     }
   }
 
-  button:disabled {
+  button[aria-disabled="true"] {
     opacity: 0.6;
     cursor: progress;
   }
